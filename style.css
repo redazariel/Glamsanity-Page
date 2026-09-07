@@ -1,0 +1,1019 @@
+/* =========================================================
+   GLAMSANITY — BLACK & GOLD LUXURY CATALOG
+   ========================================================= */
+
+:root {
+    --black: #080808;
+    --black-soft: #111111;
+    --black-card: #151515;
+    --black-light: #1d1d1d;
+
+    --gold: #c9a227;
+    --gold-light: #e5c766;
+    --gold-dark: #92751a;
+
+    --white: #f8f6f0;
+    --cream: #eee9dc;
+    --muted: #aaa59a;
+
+    --border: rgba(201, 162, 39, 0.30);
+
+    --shadow:
+        0 15px 45px rgba(0, 0, 0, 0.45);
+
+    --gold-shadow:
+        0 8px 30px rgba(201, 162, 39, 0.12);
+
+    --radius: 4px;
+}
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+}
+
+body {
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(201, 162, 39, 0.06),
+            transparent 35%
+        ),
+        var(--black);
+
+    color: var(--white);
+
+    font-family:
+        "DM Sans",
+        Arial,
+        sans-serif;
+
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+::selection {
+    background: var(--gold);
+    color: var(--black);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+header {
+    background:
+        linear-gradient(
+            135deg,
+            #050505,
+            #15120b
+        );
+
+    border-bottom: 1px solid var(--border);
+
+    padding: 42px 25px 30px;
+
+    text-align: center;
+
+    position: relative;
+}
+
+header::after {
+    content: "";
+    display: block;
+
+    width: 70px;
+    height: 2px;
+
+    background: var(--gold);
+
+    margin: 18px auto 0;
+}
+
+header h1 {
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size: clamp(38px, 6vw, 68px);
+
+    letter-spacing: 8px;
+
+    color: var(--gold-light);
+
+    font-weight: 600;
+
+    line-height: 1;
+}
+
+header p {
+    margin-top: 12px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 3px;
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 0;
+
+    background: rgba(8, 8, 8, 0.96);
+
+    border-bottom: 1px solid var(--border);
+
+    backdrop-filter: blur(15px);
+
+    overflow-x: auto;
+}
+
+nav::-webkit-scrollbar {
+    height: 3px;
+}
+
+nav::-webkit-scrollbar-thumb {
+    background: var(--gold);
+}
+
+nav a {
+    color: var(--cream);
+
+    text-decoration: none;
+
+    padding: 15px 18px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.3px;
+
+    white-space: nowrap;
+
+    border-bottom: 2px solid transparent;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+nav a:hover {
+    color: var(--gold-light);
+
+    background: rgba(201, 162, 39, 0.07);
+
+    border-bottom-color: var(--gold);
+}
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+
+section {
+    width: min(1250px, 94%);
+
+    margin: 0 auto;
+
+    padding: 65px 0;
+
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+section h2 {
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    color: var(--gold-light);
+
+    font-size: clamp(27px, 4vw, 40px);
+
+    font-weight: 600;
+
+    margin-bottom: 30px;
+
+    position: relative;
+}
+
+section h2::after {
+    content: "";
+
+    display: block;
+
+    width: 45px;
+
+    height: 2px;
+
+    background: var(--gold);
+
+    margin-top: 12px;
+}
+
+section h3 {
+    color: var(--white);
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.5px;
+
+    margin: 28px 0 14px;
+
+    padding-left: 12px;
+
+    border-left: 2px solid var(--gold);
+}
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.035),
+            rgba(255,255,255,0.015)
+        );
+
+    border: 1px solid var(--border);
+
+    padding: 24px;
+
+    margin-bottom: 14px;
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+
+    border-color: rgba(229, 199, 102, 0.65);
+
+    box-shadow:
+        var(--shadow),
+        var(--gold-shadow);
+}
+
+.card h3 {
+    margin-top: 0;
+
+    padding-left: 0;
+
+    border-left: none;
+
+    color: var(--gold-light);
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    text-transform: none;
+
+    letter-spacing: 0;
+
+    font-size: 21px;
+}
+
+.card p {
+    color: var(--muted);
+
+    margin-top: 10px;
+}
+
+/* =========================================================
+   LISTS
+   ========================================================= */
+
+ul {
+    list-style: none;
+
+    margin-top: 15px;
+}
+
+li {
+    position: relative;
+
+    color: var(--muted);
+
+    padding: 9px 0 9px 25px;
+
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+li::before {
+    content: "◆";
+
+    position: absolute;
+
+    left: 0;
+
+    color: var(--gold);
+
+    font-size: 8px;
+
+    top: 13px;
+}
+
+/* =========================================================
+   CATALOG CONTAINERS
+   ========================================================= */
+
+#availableContainers,
+#preorderContainers,
+#skincare,
+#soap,
+#lip,
+#other,
+#bundleCatalog,
+#paymentInformation {
+    width: 100%;
+}
+
+/* Automatically creates compact responsive layouts
+   for elements generated by catalog.js */
+
+.catalog-grid,
+#availableContainers,
+#preorderContainers,
+#skincare,
+#soap,
+#lip,
+#other,
+#bundleCatalog {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(190px, 1fr));
+
+    gap: 14px;
+
+    margin-bottom: 28px;
+}
+
+/* =========================================================
+   GENERATED PRODUCT / CONTAINER CARDS
+   ========================================================= */
+
+.catalog-grid > *,
+#availableContainers > *,
+#preorderContainers > *,
+#skincare > *,
+#soap > *,
+#lip > *,
+#other > *,
+#bundleCatalog > * {
+    background:
+        linear-gradient(
+            150deg,
+            #171717,
+            #0e0e0e
+        );
+
+    border: 1px solid rgba(201, 162, 39, 0.25);
+
+    border-radius: var(--radius);
+
+    padding: 15px;
+
+    min-width: 0;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.35);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.catalog-grid > *:hover,
+#availableContainers > *:hover,
+#preorderContainers > *:hover,
+#skincare > *:hover,
+#soap > *:hover,
+#lip > *:hover,
+#other > *:hover,
+#bundleCatalog > *:hover {
+    transform: translateY(-5px);
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.55),
+        0 0 20px rgba(201,162,39,0.08);
+}
+
+/* =========================================================
+   GENERATED IMAGES
+   ========================================================= */
+
+.catalog-grid img,
+#availableContainers img,
+#preorderContainers img,
+#skincare img,
+#soap img,
+#lip img,
+#other img,
+#bundleCatalog img {
+    width: 100%;
+
+    height: 210px;
+
+    object-fit: contain;
+
+    display: block;
+
+    background: #0a0a0a;
+
+    border-bottom: 1px solid rgba(201,162,39,0.18);
+
+    margin-bottom: 12px;
+}
+
+/* =========================================================
+   GENERATED CARD TEXT
+   ========================================================= */
+
+.catalog-grid h3,
+#availableContainers h3,
+#preorderContainers h3,
+#skincare h3,
+#soap h3,
+#lip h3,
+#other h3,
+#bundleCatalog h3 {
+    color: var(--gold-light);
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size: 18px;
+
+    margin: 5px 0 7px;
+
+    border: none;
+
+    padding: 0;
+
+    text-transform: none;
+
+    letter-spacing: 0;
+}
+
+.catalog-grid p,
+#availableContainers p,
+#preorderContainers p,
+#skincare p,
+#soap p,
+#lip p,
+#other p,
+#bundleCatalog p {
+    color: var(--muted);
+
+    font-size: 12px;
+
+    line-height: 1.55;
+
+    margin: 4px 0;
+}
+
+/* =========================================================
+   GOLD PRICE
+   ========================================================= */
+
+.price,
+.product-price,
+.bundle-price {
+    color: var(--gold-light) !important;
+
+    font-size: 17px !important;
+
+    font-weight: 700;
+
+    margin-top: 10px !important;
+}
+
+/* =========================================================
+   PAYMENT SECTION
+   ========================================================= */
+
+#payment {
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(201,162,39,0.06),
+            transparent 55%
+        );
+}
+
+.payment-section-intro {
+    max-width: 700px;
+
+    color: var(--muted);
+
+    margin-bottom: 25px;
+}
+
+.payment-information {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(240px, 1fr));
+
+    gap: 14px;
+}
+
+.payment-info-card {
+    background:
+        linear-gradient(
+            145deg,
+            #171717,
+            #0d0d0d
+        );
+
+    border: 1px solid var(--border);
+
+    padding: 22px;
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+.payment-info-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--gold-dark),
+            var(--gold-light),
+            var(--gold-dark)
+        );
+}
+
+.payment-info-card h3 {
+    color: var(--gold-light);
+
+    border: none;
+
+    padding: 0;
+
+    margin: 0 0 12px;
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size: 20px;
+
+    text-transform: none;
+}
+
+.payment-info-card p {
+    color: var(--muted);
+
+    font-size: 13px;
+
+    white-space: pre-line;
+}
+
+/* =========================================================
+   PAYMENT QR
+   ========================================================= */
+
+.payment-info-card img {
+    max-width: 180px;
+
+    width: 100%;
+
+    height: auto;
+
+    display: block;
+
+    margin: 15px auto;
+
+    padding: 8px;
+
+    background: white;
+
+    border-radius: 3px;
+}
+
+/* =========================================================
+   BUTTONS / LINKS GENERATED BY JAVASCRIPT
+   ========================================================= */
+
+button,
+.btn {
+    font-family:
+        "DM Sans",
+        Arial,
+        sans-serif;
+
+    cursor: pointer;
+}
+
+button {
+    border: 1px solid var(--gold);
+
+    background: var(--gold);
+
+    color: var(--black);
+
+    padding: 10px 17px;
+
+    border-radius: 2px;
+
+    font-weight: 700;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+button:hover {
+    background: var(--gold-light);
+
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.85);
+
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: relative;
+
+    z-index: 2;
+
+    width: min(850px, 95vw);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background:
+        linear-gradient(
+            145deg,
+            #181818,
+            #090909
+        );
+
+    border: 1px solid var(--gold);
+
+    padding: 30px;
+
+    border-radius: 4px;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,0.8),
+        0 0 30px rgba(201,162,39,0.10);
+}
+
+.modal-close {
+    position: absolute;
+
+    top: 10px;
+
+    right: 12px;
+
+    width: 36px;
+
+    height: 36px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--gold-light);
+
+    border: 1px solid var(--gold);
+    
+    font-size: 22px;
+
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: var(--gold);
+
+    color: var(--black);
+}
+
+/* =========================================================
+   LOADING TEXT
+   ========================================================= */
+
+#availableContainers > p,
+#preorderContainers > p,
+#skincare > p,
+#soap > p,
+#lip > p,
+#other > p,
+#bundleCatalog > p,
+#paymentInformation > p {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    padding: 35px;
+
+    color: var(--muted);
+
+    border: 1px dashed rgba(201,162,39,0.25);
+
+    background: rgba(255,255,255,0.015);
+}
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #5e4b17;
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    header {
+        padding: 32px 18px 24px;
+    }
+
+    header h1 {
+        font-size: 38px;
+
+        letter-spacing: 5px;
+    }
+
+    header p {
+        font-size: 10px;
+
+        letter-spacing: 1.8px;
+    }
+
+    nav {
+        justify-content: flex-start;
+    }
+
+    nav a {
+        padding: 13px 14px;
+
+        font-size: 10px;
+    }
+
+    section {
+        width: 92%;
+
+        padding: 45px 0;
+    }
+
+    section h2 {
+        font-size: 29px;
+
+        margin-bottom: 22px;
+    }
+
+    section h3 {
+        font-size: 13px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .catalog-grid,
+    #availableContainers,
+    #preorderContainers,
+    #skincare,
+    #soap,
+    #lip,
+    #other,
+    #bundleCatalog {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 9px;
+    }
+
+    .catalog-grid > *,
+    #availableContainers > *,
+    #preorderContainers > *,
+    #skincare > *,
+    #soap > *,
+    #lip > *,
+    #other > *,
+    #bundleCatalog > * {
+        padding: 10px;
+    }
+
+    .catalog-grid img,
+    #availableContainers img,
+    #preorderContainers img,
+    #skincare img,
+    #soap img,
+    #lip img,
+    #other img,
+    #bundleCatalog img {
+        height: 155px;
+    }
+
+    .catalog-grid h3,
+    #availableContainers h3,
+    #preorderContainers h3,
+    #skincare h3,
+    #soap h3,
+    #lip h3,
+    #other h3,
+    #bundleCatalog h3 {
+        font-size: 15px;
+    }
+
+    .catalog-grid p,
+    #availableContainers p,
+    #preorderContainers p,
+    #skincare p,
+    #soap p,
+    #lip p,
+    #other p,
+    #bundleCatalog p {
+        font-size: 11px;
+    }
+
+    .payment-information {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        padding: 22px 17px;
+    }
+}
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    header h1 {
+        font-size: 31px;
+
+        letter-spacing: 4px;
+    }
+
+    nav a {
+        padding: 12px 11px;
+
+        font-size: 9px;
+    }
+
+    section {
+        width: 94%;
+    }
+
+    .catalog-grid,
+    #availableContainers,
+    #preorderContainers,
+    #skincare,
+    #soap,
+    #lip,
+    #other,
+    #bundleCatalog {
+        grid-template-columns: repeat(2, 1fr);
+
+        gap: 7px;
+    }
+
+    .catalog-grid img,
+    #availableContainers img,
+    #preorderContainers img,
+    #skincare img,
+    #soap img,
+    #lip img,
+    #other img,
+    #bundleCatalog img {
+        height: 130px;
+    }
+
+    .card {
+        padding: 15px;
+    }
+}
