@@ -1,710 +1,303 @@
 <!-- FILE 4: admin.html -->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Glamsanity | Admin Dashboard</title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <link rel="stylesheet" href="admin.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glamsanity Admin Dashboard</title>
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
-
 <body>
+
+<header class="admin-header">
+  <div class="admin-logo">GLAMSANITY ADMIN</div>
+
+  <button id="themeToggle" class="theme-button">☾</button>
+
+  <a href="index.html" class="view-site">View Store</a>
+</header>
 
 <div class="admin-layout">
 
+<aside class="sidebar">
+  <button class="nav-button active" data-section="dashboard">Dashboard</button>
+  <button class="nav-button" data-section="products">Products</button>
+  <button class="nav-button" data-section="bundles">Bundles</button>
+  <button class="nav-button" data-section="containers">Pre-Order Containers</button>
+  <button class="nav-button" data-section="services">Services Offered</button>
+  <button class="nav-button" data-section="settings">Company & Payment</button>
+</aside>
+
+<main class="admin-main">
+
+<section id="dashboard" class="admin-section active">
+  <div class="section-title">
+    <h1>Dashboard</h1>
+    <p>Manage your Glamsanity store.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Products</span>
+      <strong id="productCount">0</strong>
+    </div>
+    <div class="stat-card">
+      <span>Bundles</span>
+      <strong id="bundleCount">0</strong>
+    </div>
+    <div class="stat-card">
+      <span>Containers</span>
+      <strong id="containerCount">0</strong>
+    </div>
+    <div class="stat-card">
+      <span>Services</span>
+      <strong id="serviceCount">0</strong>
+    </div>
+  </div>
+</section>
+
+<section id="products" class="admin-section">
+  <div class="section-title">
+    <h1>Products</h1>
+  </div>
+
+  <form id="productForm" class="admin-form">
+    <input type="hidden" id="productId">
+
+    <label>Product Name
+      <input id="productName" required>
+    </label>
+
+    <label>Description
+      <textarea id="productDescription"></textarea>
+    </label>
+
+    <label>Category
+      <input id="productCategory">
+    </label>
+
+    <label>Price
+      <input id="productPrice" type="number" min="0" step="0.01">
+    </label>
+
+    <label>On-Hand / Available Stock
+      <input id="productStock" type="number" min="0">
+    </label>
+
+    <label>Date Stock Was Checked
+      <input id="productStockCheckedDate" type="date">
+    </label>
+
+    <label>Product Image
+      <input id="productImageFile" type="file" accept="image/*">
+    </label>
+
+    <img id="productImagePreview" class="image-preview" alt="">
+
+    <div class="form-buttons">
+      <button class="gold-button" type="submit">Save Product</button>
+      <button class="secondary-button" type="button" id="cancelProduct">Clear</button>
+    </div>
+  </form>
+
+  <div id="adminProductsList" class="admin-list"></div>
+</section>
+
+<section id="bundles" class="admin-section">
+  <div class="section-title">
+    <h1>Bundles</h1>
+  </div>
+
+  <form id="bundleForm" class="admin-form">
+    <input type="hidden" id="bundleId">
+
+    <label>Bundle Name
+      <input id="bundleName" required>
+    </label>
+
+    <label>Description
+      <textarea id="bundleDescription"></textarea>
+    </label>
+
+    <label>Price
+      <input id="bundlePrice" type="number" min="0" step="0.01">
+    </label>
 
-    <aside class="sidebar">
+    <label>On-Hand / Available Stock
+      <input id="bundleStock" type="number" min="0">
+    </label>
 
-        <div class="admin-logo">
-            GLAM<span>SANITY</span>
-        </div>
+    <label>Date Stock Was Checked
+      <input id="bundleStockCheckedDate" type="date">
+    </label>
 
-        <p class="admin-label">
-            ADMIN PANEL
-        </p>
+    <label>Bundle Image
+      <input id="bundleImageFile" type="file" accept="image/*">
+    </label>
 
-        <nav>
+    <img id="bundleImagePreview" class="image-preview" alt="">
 
-            <button
-                class="nav-button active"
-                data-section="dashboard"
-            >
-                Dashboard
-            </button>
+    <div class="form-buttons">
+      <button class="gold-button" type="submit">Save Bundle</button>
+      <button class="secondary-button" type="button" id="cancelBundle">Clear</button>
+    </div>
+  </form>
 
-            <button
-                class="nav-button"
-                data-section="products"
-            >
-                Products
-            </button>
+  <div id="adminBundlesList" class="admin-list"></div>
+</section>
 
-            <button
-                class="nav-button"
-                data-section="bundles"
-            >
-                Bundles
-            </button>
+<section id="containers" class="admin-section">
+  <div class="section-title">
+    <h1>Pre-Order Containers</h1>
+  </div>
 
-            <button
-                class="nav-button"
-                data-section="containers"
-            >
-                Containers
-            </button>
+  <form id="containerForm" class="admin-form">
+    <input type="hidden" id="containerId">
 
-            <button
-                class="nav-button"
-                data-section="services"
-            >
-                Services
-            </button>
+    <label>Container Name
+      <input id="containerName" required>
+    </label>
 
-            <button
-                class="nav-button"
-                data-section="settings"
-            >
-                Company Information
-            </button>
+    <label>Description
+      <textarea id="containerDescription"></textarea>
+    </label>
 
-            <button
-                class="nav-button"
-                data-section="payment"
-            >
-                Payment Information
-            </button>
+    <label>Price
+      <input id="containerPrice" type="number" min="0" step="0.01">
+    </label>
 
-        </nav>
+    <label>On-Hand / Available Stock
+      <input id="containerStock" type="number" min="0">
+    </label>
 
+    <label>Date Stock Was Checked
+      <input id="containerStockCheckedDate" type="date">
+    </label>
 
-        <button
-            id="themeToggle"
-            class="sidebar-theme"
-            type="button"
-        >
-            ☾ Light Mode
-        </button>
+    <label>Estimated Lead Time
+      <input id="containerLeadTime" placeholder="e.g. 2–4 weeks">
+    </label>
 
-    </aside>
+    <label>Container Image
+      <input id="containerImageFile" type="file" accept="image/*">
+    </label>
 
+    <img id="containerImagePreview" class="image-preview" alt="">
 
-    <main class="admin-main">
+    <label>Source <span class="admin-only">(Admin Only)</span>
+      <input id="containerSource" placeholder="Supplier / Source">
+    </label>
 
+    <div class="form-buttons">
+      <button class="gold-button" type="submit">Save Container</button>
+      <button class="secondary-button" type="button" id="cancelContainer">Clear</button>
+    </div>
+  </form>
 
-        <header class="admin-header">
+  <div id="adminContainersList" class="admin-list"></div>
+</section>
 
-            <div>
+<section id="services" class="admin-section">
+  <div class="section-title">
+    <h1>Services Offered</h1>
+  </div>
 
-                <p class="eyebrow">
-                    GLAMSANITY
-                </p>
+  <div id="servicesEditor" class="services-editor"></div>
 
-                <h1 id="pageTitle">
-                    Dashboard
-                </h1>
+  <button id="addService" class="secondary-button">+ Add Service</button>
+  <button id="saveServices" class="gold-button">Save Services</button>
+</section>
 
-            </div>
+<section id="settings" class="admin-section">
+  <div class="section-title">
+    <h1>Company Information</h1>
+  </div>
 
-        </header>
+  <form id="companyForm" class="admin-form">
 
+    <label>Company Introduction
+      <textarea id="companyIntroInput" rows="5"></textarea>
+    </label>
 
-        <!-- DASHBOARD -->
+    <label>Mission
+      <textarea id="companyMissionInput" rows="4"></textarea>
+    </label>
 
-        <section
-            id="dashboard"
-            class="admin-section active"
-        >
-
-            <div class="stats-grid">
-
-                <div class="stat-card">
-                    <span>Products</span>
-                    <strong id="productCount">0</strong>
-                </div>
-
-                <div class="stat-card">
-                    <span>Bundles</span>
-                    <strong id="bundleCount">0</strong>
-                </div>
-
-                <div class="stat-card">
-                    <span>Containers</span>
-                    <strong id="containerCount">0</strong>
-                </div>
-
-                <div class="stat-card">
-                    <span>Services</span>
-                    <strong id="serviceCount">0</strong>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- PRODUCTS -->
-
-        <section
-            id="products"
-            class="admin-section"
-        >
-
-            <div class="section-title">
-                <h2>Products</h2>
-            </div>
-
-            <form
-                id="productForm"
-                class="admin-form"
-            >
-
-                <input
-                    type="hidden"
-                    id="productId"
-                >
-
-                <label>
-                    Product Name
-
-                    <input
-                        type="text"
-                        id="productName"
-                        required
-                    >
-                </label>
-
-                <label>
-                    Description
-
-                    <textarea
-                        id="productDescription"
-                        rows="4"
-                    ></textarea>
-                </label>
-
-                <label>
-                    Category
-
-                    <input
-                        type="text"
-                        id="productCategory"
-                        placeholder="Example: Makeup"
-                    >
-                </label>
-
-                <label>
-                    Price
-
-                    <input
-                        type="number"
-                        id="productPrice"
-                        min="0"
-                        step="0.01"
-                    >
-                </label>
-
-                <label>
-                    Stock
-
-                    <input
-                        type="number"
-                        id="productStock"
-                        min="0"
-                    >
-                </label>
-
-                <label>
-                    Product Image
-
-                    <input
-                        type="file"
-                        id="productImageFile"
-                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
-                    >
-                </label>
-
-                <div class="image-preview-box">
-                    <img
-                        id="productImagePreview"
-                        class="image-preview hidden"
-                        alt="Product preview"
-                    >
-                </div>
-
-                <div class="form-buttons">
-
-                    <button
-                        type="submit"
-                        class="gold-button"
-                    >
-                        Save Product
-                    </button>
-
-                    <button
-                        type="button"
-                        id="cancelProduct"
-                        class="secondary-button"
-                    >
-                        Clear
-                    </button>
-
-                </div>
-
-            </form>
-
-
-            <div
-                id="adminProductsList"
-                class="admin-items"
-            ></div>
-
-        </section>
-
-
-        <!-- BUNDLES -->
-
-        <section
-            id="bundles"
-            class="admin-section"
-        >
-
-            <div class="section-title">
-                <h2>Bundles</h2>
-            </div>
-
-            <form
-                id="bundleForm"
-                class="admin-form"
-            >
-
-                <input
-                    type="hidden"
-                    id="bundleId"
-                >
-
-                <label>
-                    Bundle Name
-
-                    <input
-                        type="text"
-                        id="bundleName"
-                        required
-                    >
-                </label>
-
-                <label>
-                    Description
-
-                    <textarea
-                        id="bundleDescription"
-                        rows="4"
-                    ></textarea>
-                </label>
-
-                <label>
-                    Price
-
-                    <input
-                        type="number"
-                        id="bundlePrice"
-                        min="0"
-                        step="0.01"
-                    >
-                </label>
-
-                <label>
-                    Stock
-
-                    <input
-                        type="number"
-                        id="bundleStock"
-                        min="0"
-                    >
-                </label>
-
-                <label>
-                    Bundle Image
-
-                    <input
-                        type="file"
-                        id="bundleImageFile"
-                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
-                    >
-                </label>
-
-                <div class="image-preview-box">
-                    <img
-                        id="bundleImagePreview"
-                        class="image-preview hidden"
-                        alt="Bundle preview"
-                    >
-                </div>
-
-                <div class="form-buttons">
-
-                    <button
-                        type="submit"
-                        class="gold-button"
-                    >
-                        Save Bundle
-                    </button>
-
-                    <button
-                        type="button"
-                        id="cancelBundle"
-                        class="secondary-button"
-                    >
-                        Clear
-                    </button>
-
-                </div>
-
-            </form>
-
-
-            <div
-                id="adminBundlesList"
-                class="admin-items"
-            ></div>
-
-        </section>
-
-
-        <!-- CONTAINERS -->
-
-        <section
-            id="containers"
-            class="admin-section"
-        >
-
-            <div class="section-title">
-                <h2>Containers</h2>
-            </div>
-
-            <form
-                id="containerForm"
-                class="admin-form"
-            >
-
-                <input
-                    type="hidden"
-                    id="containerId"
-                >
-
-                <label>
-                    Container Name
-
-                    <input
-                        type="text"
-                        id="containerName"
-                        required
-                    >
-                </label>
-
-                <label>
-                    Description
-
-                    <textarea
-                        id="containerDescription"
-                        rows="4"
-                    ></textarea>
-                </label>
-
-                <label>
-                    Price
-
-                    <input
-                        type="number"
-                        id="containerPrice"
-                        min="0"
-                        step="0.01"
-                    >
-                </label>
-
-                <label>
-                    Stock
-
-                    <input
-                        type="number"
-                        id="containerStock"
-                        min="0"
-                    >
-                </label>
-
-                <label>
-                    Container Image
-
-                    <input
-                        type="file"
-                        id="containerImageFile"
-                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
-                    >
-                </label>
-
-                <div class="image-preview-box">
-                    <img
-                        id="containerImagePreview"
-                        class="image-preview hidden"
-                        alt="Container preview"
-                    >
-                </div>
-
-                <label>
-                    Source
-
-                    <input
-                        type="text"
-                        id="containerSource"
-                        placeholder="Enter container source"
-                    >
-
-                    <small>
-                        This information is visible only in the admin dashboard.
-                    </small>
-                </label>
-
-                <div class="form-buttons">
-
-                    <button
-                        type="submit"
-                        class="gold-button"
-                    >
-                        Save Container
-                    </button>
-
-                    <button
-                        type="button"
-                        id="cancelContainer"
-                        class="secondary-button"
-                    >
-                        Clear
-                    </button>
-
-                </div>
-
-            </form>
-
-
-            <div
-                id="adminContainersList"
-                class="admin-items"
-            ></div>
-
-        </section>
-
-
-        <!-- SERVICES -->
-
-        <section
-            id="services"
-            class="admin-section"
-        >
-
-            <div class="section-title">
-                <h2>Services Offered</h2>
-            </div>
-
-            <div
-                id="servicesEditor"
-                class="services-editor"
-            ></div>
-
-            <button
-                id="saveServices"
-                type="button"
-                class="gold-button"
-            >
-                Save Services
-            </button>
-
-        </section>
-
-
-        <!-- COMPANY INFORMATION -->
-
-        <section
-            id="settings"
-            class="admin-section"
-        >
-
-            <div class="section-title">
-                <h2>Company Information</h2>
-            </div>
-
-            <form
-                id="companyForm"
-                class="admin-form"
-            >
-
-                <label>
-                    Company Introduction
-
-                    <textarea
-                        id="companyIntroInput"
-                        rows="6"
-                        placeholder="Write your company introduction..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Mission
-
-                    <textarea
-                        id="companyMissionInput"
-                        rows="6"
-                        placeholder="Write your company mission..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Vision
-
-                    <textarea
-                        id="companyVisionInput"
-                        rows="6"
-                        placeholder="Write your company vision..."
-                    ></textarea>
-                </label>
-
-                <button
-                    type="submit"
-                    class="gold-button"
-                >
-                    Save Company Information
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- PAYMENT INFORMATION -->
-
-        <section
-            id="payment"
-            class="admin-section"
-        >
-
-            <div class="section-title">
-                <h2>Payment Information</h2>
-            </div>
-
-            <form
-                id="paymentForm"
-                class="admin-form"
-            >
-
-                <label>
-                    Accepted Payment Methods
-
-                    <textarea
-                        id="paymentMethodsInput"
-                        rows="4"
-                        placeholder="Example: GCash, Maya, Bank Transfer..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Payment Instructions
-
-                    <textarea
-                        id="paymentInstructionsInput"
-                        rows="5"
-                        placeholder="Enter payment instructions..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Required Down Payment
-
-                    <textarea
-                        id="paymentDownPaymentInput"
-                        rows="4"
-                        placeholder="Example: 50% down payment is required..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Balance / Payment Schedule
-
-                    <textarea
-                        id="paymentScheduleInput"
-                        rows="5"
-                        placeholder="Enter balance and payment schedule..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Payment Confirmation Procedure
-
-                    <textarea
-                        id="paymentConfirmationInput"
-                        rows="5"
-                        placeholder="Explain how customers should confirm payments..."
-                    ></textarea>
-                </label>
-
-                <label>
-                    Important Payment Reminders
-
-                    <textarea
-                        id="paymentRemindersInput"
-                        rows="5"
-                        placeholder="Enter important reminders..."
-                    ></textarea>
-                </label>
-
-                <button
-                    type="submit"
-                    class="gold-button"
-                >
-                    Save Payment Information
-                </button>
-
-            </form>
-
-        </section>
-
-    </main>
+    <label>Vision
+      <textarea id="companyVisionInput" rows="4"></textarea>
+    </label>
 
+    <button class="gold-button" type="submit">
+      Save Company Information
+    </button>
+  </form>
+
+  <div class="section-title">
+    <h1>Mode of Payment</h1>
+  </div>
+
+  <form id="paymentForm" class="admin-form">
+
+    <label>Accepted Payment Methods
+      <textarea id="paymentMethodsInput"
+        placeholder="GCash&#10;Bank Transfer&#10;Cash"></textarea>
+    </label>
+
+    <label>Payment Instructions
+      <textarea id="paymentInstructionsInput"></textarea>
+    </label>
+
+    <label>Required Down Payment
+      <textarea id="downPaymentInput"
+        placeholder="e.g. 50% down payment"></textarea>
+    </label>
+
+    <label>Balance / Payment Schedule
+      <textarea id="balanceScheduleInput"></textarea>
+    </label>
+
+    <label>Payment Confirmation Procedure
+      <textarea id="confirmationProcedureInput"></textarea>
+    </label>
+
+    <label>Important Payment Reminders
+      <textarea id="paymentRemindersInput"></textarea>
+    </label>
+
+    <label>Upload Mode of Payment Images
+      <input id="paymentModeImagesInput" type="file" accept="image/*" multiple>
+    </label>
+
+    <div id="paymentModeImagePreview" class="uploaded-images"></div>
+
+    <button class="gold-button" type="submit">
+      Save Mode of Payment
+    </button>
+  </form>
+
+  <div class="section-title">
+    <h1>Rules & Policies</h1>
+  </div>
+
+  <form id="policyForm" class="admin-form">
+
+    <label>Upload Rules & Policies Images
+      <input id="policyImagesInput" type="file" accept="image/*" multiple>
+    </label>
+
+    <div id="policyImagePreview" class="uploaded-images"></div>
+
+    <button class="gold-button" type="submit">
+      Save Rules & Policies
+    </button>
+  </form>
+
+</section>
+
+</main>
 </div>
 
-
-<div
-    id="toast"
-    class="toast"
-></div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="admin.js"></script>
-
 </body>
 </html>

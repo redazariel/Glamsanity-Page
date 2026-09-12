@@ -1,1130 +1,603 @@
 /* FILE 3: catalog.js */
 
-/* =========================================================
-   GLAMSANITY PUBLIC CATALOG
-   ========================================================= */
+const SUPABASE_URL = "https://dhbrmfoainutmimocqit.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_huQ5eTD3dDnbwY2nSAN0qA_XbMkhSY8";
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-const SUPABASE_URL =
-    "https://dhbrmfoainutmimocqit.supabase.co";
+let products = [];
+let bundles = [];
+let containers = [];
+let services = [];
+let settings = {};
+let cart = JSON.parse(localStorage.getItem("glamsanity-cart") || "[]");
 
-const SUPABASE_ANON_KEY =
-    "sb_publishable_huQ5eTD3dDnbwY2nSAN0qA_XbMkhSY8";
+document.addEventListener("DOMContentLoaded", async () => {
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
+  setupTheme();
+  setupCart();
+  setupSearch();
 
-let cart = [];
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    setupTheme();
-    setupCart();
-    setCurrentYear();
-    loadCatalog();
-
+  await loadAll();
 });
 
+async function loadAll() {
+  await Promise.all([
+    loadProducts(),
+    loadBundles(),
+    loadContainers(),
+    loadServices(),
+    loadSettings()
+  ]);
 
-/* =========================================================
-   LOAD EVERYTHING
-   ========================================================= */
-
-async function loadCatalog() {
-
-    const results = await Promise.all([
-        fetchRows("products"),
-        fetchRows("bundles"),
-        fetchRows("containers"),
-        fetchSettings()
-    ]);
-
-    renderGrid(
-        "productsGrid",
-        results[0].data,
-        results[0].error,
-        "product"
-    );
-
-    renderGrid(
-        "bundlesGrid",
-        results[1].data,
-        results[1].error,
-        "bundle"
-    );
-
-    renderGrid(
-        "containersGrid",
-        results[2].data,
-        results[2].error,
-        "container"
-    );
-
-    renderSettings(
-        results[3].data || {},
-        results[3].error
-    );
-
+  renderProducts();
+  renderBundles();
+  renderContainers();
+  renderServices();
+  renderCompany();
+  renderPayment();
+  updateCart();
 }
 
+async function loadProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-/* =========================================================
-   DATABASE
-   ========================================================= */
+  if (!error) products = data || [];
 
-async function fetchRows(table) {
+  buildCategories();
+}
 
-    try {
+async function loadBundles() {
+  const { data, error } = await supabaseClient
+    .from("bundles")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-        const result =
-            await supabaseClient
-                .from(table)
-                .select("*")
-                .order("id", {
-                    ascending: false
-                });
+  if (!error) bundles = data || [];
+}
 
-        return {
-            data: result.data || [],
-            error: result.error
-        };
+async function loadContainers() {
+  const { data, error } = await supabaseClient
+    .from("containers")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    } catch (error) {
+  if (!error) containers = data || [];
+}
 
-        return {
-            data: [],
-            error
-        };
+async function loadServices() {
+  const { data } = await supabaseClient
+    .from("services")
+    .select("*")
+    .order("sort_order", { ascending: true });
 
+  services = data || [];
+
+  if (!services.length) {
+    const { data: fallback } = await supabaseClient
+      .from("glamsanity_settings")
+      .select("services_offered")
+      .eq("id", 1)
+      .maybeSingle();
+
+    if (fallback?.services_offered) {
+      services = Array.isArray(fallback.services_offered)
+        ? fallback.services_offered
+        : [];
     }
-
+  }
 }
 
+async function loadSettings() {
+  const { data } = await supabaseClient
+    .from("glamsanity_settings")
+    .select("*")
+    .eq("id", 1)
+    .maybeSingle();
 
-async function fetchSettings() {
-
-    try {
-
-        const result =
-            await supabaseClient
-                .from("glamsanity_settings")
-                .select("*")
-                .eq("id", 1)
-                .maybeSingle();
-
-        return {
-            data: result.data || {},
-            error: result.error
-        };
-
-    } catch (error) {
-
-        return {
-            data: {},
-            error
-        };
-
-    }
-
+  settings = data || {};
 }
 
+function buildCategories() {
+  const select = document.getElementById("categoryFilter");
+  if (!select) return;
 
-/* =========================================================
-   RENDER PRODUCTS / BUNDLES / CONTAINERS
-   ========================================================= */
+  const categories = [
+    ...new Set(
+      products
+        .map(p => p.category)
+        .filter(Boolean)
+    )
+  ];
 
-function renderGrid(
-    elementId,
-    rows,
-    error,
-    type
-) {
+  select.innerHTML = `<option value="all">All Categories</option>`;
 
-    const grid =
-        document.getElementById(elementId);
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    select.appendChild(option);
+  });
+}
 
-    if (!grid) return;
+function setupSearch() {
+  const search = document.getElementById("searchInput");
+  const filter = document.getElementById("categoryFilter");
 
-    if (error) {
+  search?.addEventListener("input", renderProducts);
+  filter?.addEventListener("change", renderProducts);
+}
 
-        console.error(type, error);
+function imageOrPlaceholder(url, title) {
+  return url ||
+    `https://placehold.co/700x700/111111/D4AF37?text=${encodeURIComponent(title || "Glamsanity")}`;
+}
 
-        grid.innerHTML = `
-            <div class="error-message">
-                Unable to load ${escapeHtml(type)}s.
-                <br>
-                ${escapeHtml(error.message)}
+function money(value) {
+  return Number(value || 0).toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function renderProducts() {
+  const grid = document.getElementById("productsGrid");
+  if (!grid) return;
+
+  const search = (
+    document.getElementById("searchInput")?.value || ""
+  ).toLowerCase();
+
+  const category =
+    document.getElementById("categoryFilter")?.value || "all";
+
+  const filtered = products.filter(product => {
+    const text = `${product.name || ""} ${product.description || ""} ${product.category || ""}`.toLowerCase();
+
+    return (
+      text.includes(search) &&
+      (category === "all" || product.category === category)
+    );
+  });
+
+  grid.innerHTML = filtered.length
+    ? filtered.map(productCard).join("")
+    : `<p>No products available.</p>`;
+
+  attachProductButtons(grid);
+}
+
+function productCard(item) {
+  const stock = Number(item.stock || 0);
+  const date = item.stock_checked_date
+    ? new Date(item.stock_checked_date).toLocaleDateString()
+    : "Not specified";
+
+  return `
+    <article class="product-card">
+      <img class="product-image"
+           src="${imageOrPlaceholder(item.image_url, item.name)}"
+           alt="${escapeHtml(item.name || "")}"
+           onclick="openImage('${escapeAttr(item.image_url || "")}','${escapeAttr(item.name || "")}')">
+
+      <div class="product-content">
+        <h3>${escapeHtml(item.name || "Unnamed Product")}</h3>
+        <p class="product-description">${escapeHtml(item.description || "")}</p>
+
+        <div class="product-meta">
+          <div class="price">₱${money(item.price)}</div>
+          <div class="stock">
+            Available Stock: ${stock}
+          </div>
+          <div class="stock">
+            Stock Checked: ${escapeHtml(date)}
+          </div>
+        </div>
+
+        <button
+          class="gold-button add-cart"
+          data-type="product"
+          data-id="${item.id}"
+          ${stock <= 0 ? "disabled" : ""}>
+          ${stock <= 0 ? "Out of Stock" : "Add to Cart"}
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderBundles() {
+  const grid = document.getElementById("bundlesGrid");
+  if (!grid) return;
+
+  grid.innerHTML = bundles.length
+    ? bundles.map(item => `
+      <article class="product-card">
+        <img class="product-image"
+             src="${imageOrPlaceholder(item.image_url, item.name)}"
+             alt="${escapeHtml(item.name || "")}"
+             onclick="openImage('${escapeAttr(item.image_url || "")}','${escapeAttr(item.name || "")}')">
+
+        <div class="product-content">
+          <h3>${escapeHtml(item.name || "Bundle")}</h3>
+          <p class="product-description">${escapeHtml(item.description || "")}</p>
+          <div class="product-meta">
+            <div class="price">₱${money(item.price)}</div>
+            <div class="stock">Available Stock: ${Number(item.stock || 0)}</div>
+            <div class="stock">
+              Stock Checked:
+              ${item.stock_checked_date
+                ? new Date(item.stock_checked_date).toLocaleDateString()
+                : "Not specified"}
             </div>
-        `;
+          </div>
+          <button
+            class="gold-button add-cart"
+            data-type="bundle"
+            data-id="${item.id}"
+            ${Number(item.stock || 0) <= 0 ? "disabled" : ""}>
+            ${Number(item.stock || 0) <= 0 ? "Out of Stock" : "Add to Cart"}
+          </button>
+        </div>
+      </article>
+    `).join("")
+    : `<p>No bundles available.</p>`;
 
-        return;
-    }
-
-    if (!rows.length) {
-
-        grid.innerHTML = `
-            <div class="empty-message">
-                No ${escapeHtml(type)}s available at this time.
-            </div>
-        `;
-
-        return;
-    }
-
-    grid.innerHTML =
-        rows
-            .map(item =>
-                createCatalogCard(item, type)
-            )
-            .join("");
-
+  attachProductButtons(grid);
 }
 
+function renderContainers() {
+  const grid = document.getElementById("containersGrid");
+  if (!grid) return;
 
-/* =========================================================
-   PRODUCT CARD
-   ========================================================= */
+  grid.innerHTML = containers.length
+    ? containers.map(item => `
+      <article class="product-card">
+        <img class="product-image"
+             src="${imageOrPlaceholder(item.image_url, item.name)}"
+             alt="${escapeHtml(item.name || "")}"
+             onclick="openImage('${escapeAttr(item.image_url || "")}','${escapeAttr(item.name || "")}')">
 
-function createCatalogCard(item, type) {
+        <div class="product-content">
+          <h3>${escapeHtml(item.name || "Container")}</h3>
+          <p class="product-description">${escapeHtml(item.description || "")}</p>
 
-    const name =
-        item.name || "Unnamed Item";
-
-    const description =
-        item.description ||
-        "Premium Glamsanity product.";
-
-    const image =
-        item.image_url ||
-        item.image ||
-        "";
-
-    const price =
-        Number(item.price || 0);
-
-    const stock =
-        Number(item.stock || 0);
-
-    const category =
-        item.category || "";
-
-    const typeName =
-        type === "product"
-            ? "Product"
-            : type === "bundle"
-                ? "Bundle"
-                : "Container";
-
-    return `
-        <article class="catalog-card">
-
-            <div class="catalog-image">
-
-                ${
-                    image
-                        ? `
-                            <img
-                                src="${escapeAttribute(image)}"
-                                alt="${escapeAttribute(name)}"
-                                loading="lazy"
-                                onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"
-                            >
-
-                            <div
-                                class="catalog-placeholder"
-                                style="display:none;"
-                            >
-                                GLAMSANITY
-                            </div>
-                          `
-                        : `
-                            <div class="catalog-placeholder">
-                                GLAMSANITY
-                            </div>
-                          `
-                }
-
-                <span class="catalog-type">
-                    ${typeName}
-                </span>
-
+          <div class="product-meta">
+            <div class="price">₱${money(item.price)}</div>
+            <div class="stock">
+              Available Stock: ${Number(item.stock || 0)}
             </div>
-
-
-            <div class="catalog-content">
-
-                ${
-                    category
-                        ? `
-                            <div class="catalog-category">
-                                ${escapeHtml(category)}
-                            </div>
-                          `
-                        : ""
-                }
-
-                <h3>
-                    ${escapeHtml(name)}
-                </h3>
-
-                <p class="catalog-description">
-                    ${escapeHtml(description)}
-                </p>
-
-                <div class="catalog-bottom">
-
-                    <strong class="catalog-price">
-                        ₱${formatPrice(price)}
-                    </strong>
-
-                    <span class="stock-info ${
-                        stock > 0
-                            ? "in-stock"
-                            : "out-of-stock"
-                    }">
-                        ${
-                            stock > 0
-                                ? `In Stock: ${stock}`
-                                : "Out of Stock"
-                        }
-                    </span>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="add-cart-button"
-                    data-cart-id="${escapeAttribute(item.id)}"
-                    data-cart-type="${type}"
-                    ${stock <= 0 ? "disabled" : ""}
-                >
-                    ${
-                        stock > 0
-                            ? "ADD TO CART"
-                            : "OUT OF STOCK"
-                    }
-                </button>
-
+            <div class="stock">
+              Stock Checked:
+              ${item.stock_checked_date
+                ? new Date(item.stock_checked_date).toLocaleDateString()
+                : "Not specified"}
             </div>
 
-        </article>
-    `;
-
-}
-
-
-/* =========================================================
-   SETTINGS
-   ========================================================= */
-
-function renderSettings(settings, error) {
-
-    if (error) {
-        console.warn(
-            "Settings error:",
-            error.message
-        );
-    }
-
-    setText(
-        "companyIntro",
-        settings.company_intro ||
-        "Welcome to Glamsanity."
-    );
-
-    setText(
-        "companyMission",
-        settings.company_mission ||
-        "Our mission information will be available soon."
-    );
-
-    setText(
-        "companyVision",
-        settings.company_vision ||
-        "Our vision information will be available soon."
-    );
-
-    renderServices(
-        settings.services_offered
-    );
-
-    renderPayment(
-        settings.payment_information
-    );
-
-}
-
-
-/* =========================================================
-   SERVICES
-   ========================================================= */
-
-function renderServices(value) {
-
-    const grid =
-        document.getElementById(
-            "servicesOfferedGrid"
-        );
-
-    if (!grid) return;
-
-    const services =
-        Array.isArray(value)
-            ? value
-            : [];
-
-    const usableServices =
-        services.filter(service =>
-            service &&
-            (
-                service.name ||
-                service.description ||
-                service.image
-            )
-        );
-
-    if (!usableServices.length) {
-
-        grid.innerHTML = `
-            <div class="service-empty">
-                Services information will be available soon.
+            <div class="lead-time">
+              Estimated Lead Time:
+              ${escapeHtml(item.lead_time || "Not specified")}
             </div>
-        `;
+          </div>
 
-        return;
-    }
+          <button
+            class="gold-button add-cart"
+            data-type="container"
+            data-id="${item.id}">
+            Add to Cart
+          </button>
+        </div>
+      </article>
+    `).join("")
+    : `<p>No pre-order containers available.</p>`;
 
-    grid.innerHTML =
-        usableServices
-            .map((service, index) => {
-
-                const name =
-                    service.name ||
-                    `Service ${index + 1}`;
-
-                const description =
-                    service.description ||
-                    "";
-
-                const image =
-                    service.image ||
-                    "";
-
-                return `
-                    <article class="service-card">
-
-                        <div class="service-image">
-
-                            ${
-                                image
-                                    ? `
-                                        <img
-                                            src="${escapeAttribute(image)}"
-                                            alt="${escapeAttribute(name)}"
-                                            loading="lazy"
-                                            onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"
-                                        >
-
-                                        <div
-                                            class="service-placeholder"
-                                            style="display:none;"
-                                        >
-                                            GLAMSANITY
-                                        </div>
-                                      `
-                                    : `
-                                        <div class="service-placeholder">
-                                            GLAMSANITY
-                                        </div>
-                                      `
-                            }
-
-                        </div>
-
-                        <div class="service-content">
-
-                            <span class="service-number">
-                                ${String(index + 1).padStart(2, "0")}
-                            </span>
-
-                            <h4>
-                                ${escapeHtml(name)}
-                            </h4>
-
-                            ${
-                                description
-                                    ? `
-                                        <p>
-                                            ${escapeHtml(description)}
-                                        </p>
-                                      `
-                                    : ""
-                            }
-
-                        </div>
-
-                    </article>
-                `;
-
-            })
-            .join("");
-
+  attachProductButtons(grid);
 }
 
+function renderServices() {
+  const grid = document.getElementById("servicesGrid");
+  if (!grid) return;
 
-/* =========================================================
-   PAYMENT INFORMATION
-   ========================================================= */
+  grid.innerHTML = services.length
+    ? services.map(service => `
+      <article class="service-card">
+        ${service.image_url
+          ? `<img src="${service.image_url}"
+                  alt="${escapeHtml(service.name || "Service")}"
+                  onclick="openImage('${escapeAttr(service.image_url)}','${escapeAttr(service.name || "")}')">`
+          : ""}
 
-function renderPayment(value) {
-
-    const payment =
-        value &&
-        typeof value === "object"
-            ? value
-            : {};
-
-    setText(
-        "paymentMethods",
-        payment.methods ||
-        "Payment information will be available soon."
-    );
-
-    setText(
-        "paymentInstructions",
-        payment.instructions ||
-        "Please contact Glamsanity for payment instructions."
-    );
-
-    setText(
-        "paymentDownPayment",
-        payment.down_payment ||
-        "Please contact Glamsanity for down payment requirements."
-    );
-
-    setText(
-        "paymentSchedule",
-        payment.schedule ||
-        "Please contact Glamsanity for the payment schedule."
-    );
-
-    setText(
-        "paymentConfirmation",
-        payment.confirmation ||
-        "Please send your payment confirmation according to the provided instructions."
-    );
-
-    setText(
-        "paymentReminders",
-        payment.reminders ||
-        "Please keep your payment receipt or confirmation for reference."
-    );
-
+        <div class="service-content">
+          <h3>${escapeHtml(service.name || "Service")}</h3>
+          <p>${escapeHtml(service.description || "")}</p>
+        </div>
+      </article>
+    `).join("")
+    : `<p>No services available.</p>`;
 }
 
+function renderCompany() {
+  const intro =
+    settings.company_introduction ||
+    settings.company_intro ||
+    "";
 
-/* =========================================================
-   CART
-   ========================================================= */
+  const mission = settings.mission || "";
+  const vision = settings.vision || "";
 
-function setupCart() {
+  document.getElementById("companyIntroduction").textContent = intro;
+  document.getElementById("companyMission").textContent = mission;
+  document.getElementById("companyVision").textContent = vision;
 
-    try {
-
-        const saved =
-            localStorage.getItem(
-                "glamsanity-cart"
-            );
-
-        cart =
-            saved
-                ? JSON.parse(saved)
-                : [];
-
-        if (!Array.isArray(cart)) {
-            cart = [];
-        }
-
-    } catch {
-        cart = [];
-    }
-
-    updateCartCount();
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target.closest(
-                    ".add-cart-button"
-                );
-
-            if (button) {
-
-                addToCart(
-                    button.dataset.cartId,
-                    button.dataset.cartType
-                );
-
-            }
-
-            const remove =
-                event.target.closest(
-                    ".cart-remove"
-                );
-
-            if (remove) {
-
-                removeFromCart(
-                    Number(remove.dataset.index)
-                );
-
-            }
-
-        }
-    );
-
-    const cartButton =
-        document.getElementById(
-            "cartButton"
-        );
-
-    const closeCart =
-        document.getElementById(
-            "closeCart"
-        );
-
-    const clearCart =
-        document.getElementById(
-            "clearCart"
-        );
-
-    if (cartButton) {
-        cartButton.addEventListener(
-            "click",
-            openCart
-        );
-    }
-
-    if (closeCart) {
-        closeCart.addEventListener(
-            "click",
-            closeCartModal
-        );
-    }
-
-    if (clearCart) {
-        clearCart.addEventListener(
-            "click",
-            clearCartItems
-        );
-    }
-
-    const modal =
-        document.getElementById(
-            "cartModal"
-        );
-
-    if (modal) {
-
-        modal.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    event.target === modal
-                ) {
-                    closeCartModal();
-                }
-
-            }
-        );
-
-    }
-
+  document.getElementById("aboutIntroduction").textContent = intro;
+  document.getElementById("aboutMission").textContent = mission;
+  document.getElementById("aboutVision").textContent = vision;
 }
 
+function renderPayment() {
+  const container = document.getElementById("paymentInformation");
+  const info = settings.payment_information || {};
 
-async function addToCart(id, type) {
+  const fields = [
+    ["Accepted Payment Methods", info.payment_methods],
+    ["Payment Instructions", info.payment_instructions],
+    ["Required Down Payment", info.down_payment],
+    ["Balance / Payment Schedule", info.balance_schedule],
+    ["Payment Confirmation Procedure", info.confirmation_procedure],
+    ["Important Payment Reminders", info.payment_reminders]
+  ];
 
-    const result =
-        await fetchRows(type === "product"
-            ? "products"
-            : type === "bundle"
-                ? "bundles"
-                : "containers"
-        );
+  container.innerHTML = fields
+    .filter(([, value]) => value)
+    .map(([title, value]) => `
+      <div class="payment-item">
+        <h3>${title}</h3>
+        <p>${escapeHtml(value).replace(/\n/g, "<br>")}</p>
+      </div>
+    `)
+    .join("");
 
-    if (result.error) {
+  renderDocumentImages(
+    "policyImagesGrid",
+    settings.rules_policy_images || []
+  );
 
-        showToast(
-            "Could not add item to cart.",
-            "error"
-        );
-
-        return;
-    }
-
-    const item =
-        result.data.find(
-            row =>
-                String(row.id) ===
-                String(id)
-        );
-
-    if (!item) {
-
-        showToast(
-            "Item is no longer available.",
-            "error"
-        );
-
-        return;
-    }
-
-    const stock =
-        Number(item.stock || 0);
-
-    if (stock <= 0) {
-
-        showToast(
-            "This item is out of stock.",
-            "error"
-        );
-
-        return;
-    }
-
-    const existing =
-        cart.find(
-            row =>
-                String(row.id) ===
-                String(item.id) &&
-                row.type === type
-        );
-
-    if (existing) {
-
-        if (
-            existing.quantity >= stock
-        ) {
-
-            showToast(
-                "You cannot add more than the available stock.",
-                "error"
-            );
-
-            return;
-        }
-
-        existing.quantity += 1;
-
-    } else {
-
-        cart.push({
-            id: item.id,
-            type,
-            name: item.name,
-            price: Number(item.price || 0),
-            quantity: 1
-        });
-
-    }
-
-    saveCart();
-
-    showToast(
-        `${item.name} added to cart.`
-    );
-
+  renderDocumentImages(
+    "paymentImagesGrid",
+    settings.payment_mode_images || []
+  );
 }
 
+function renderDocumentImages(elementId, images) {
+  const grid = document.getElementById(elementId);
+  if (!grid) return;
 
-function removeFromCart(index) {
+  grid.innerHTML = (images || []).map((url, index) => `
+    <img
+      class="document-image"
+      src="${url}"
+      alt="Document ${index + 1}"
+      onclick="openImage('${escapeAttr(url)}','Document ${index + 1}')">
+  `).join("");
+}
 
-    if (
-        index < 0 ||
-        index >= cart.length
-    ) {
-        return;
+function attachProductButtons(container) {
+  container.querySelectorAll(".add-cart").forEach(button => {
+    button.addEventListener("click", () => {
+      addToCart(
+        button.dataset.type,
+        Number(button.dataset.id)
+      );
+    });
+  });
+}
+
+function getItem(type, id) {
+  const list = {
+    product: products,
+    bundle: bundles,
+    container: containers
+  }[type] || [];
+
+  return list.find(item => Number(item.id) === Number(id));
+}
+
+function addToCart(type, id) {
+  const item = getItem(type, id);
+  if (!item) return;
+
+  const existing = cart.find(
+    c => c.type === type && Number(c.id) === Number(id)
+  );
+
+  const stock = Number(item.stock || 0);
+
+  if (existing) {
+    if (type !== "container" && existing.quantity >= stock) {
+      alert("You cannot add more than the available stock.");
+      return;
     }
 
-    cart.splice(index, 1);
+    existing.quantity++;
+  } else {
+    cart.push({
+      type,
+      id,
+      name: item.name,
+      price: Number(item.price || 0),
+      image_url: item.image_url || "",
+      quantity: 1
+    });
+  }
 
-    saveCart();
-
-    renderCart();
-
+  saveCart();
+  updateCart();
+  document.getElementById("cartPanel").classList.add("open");
 }
-
-
-function clearCartItems() {
-
-    cart = [];
-
-    saveCart();
-
-    renderCart();
-
-}
-
-
-function openCart() {
-
-    const modal =
-        document.getElementById(
-            "cartModal"
-        );
-
-    if (!modal) return;
-
-    modal.classList.remove(
-        "hidden"
-    );
-
-    renderCart();
-
-}
-
-
-function closeCartModal() {
-
-    const modal =
-        document.getElementById(
-            "cartModal"
-        );
-
-    if (modal) {
-        modal.classList.add(
-            "hidden"
-        );
-    }
-
-}
-
-
-function renderCart() {
-
-    const container =
-        document.getElementById(
-            "cartItems"
-        );
-
-    const totalElement =
-        document.getElementById(
-            "cartTotal"
-        );
-
-    if (!container) return;
-
-    if (!cart.length) {
-
-        container.innerHTML = `
-            <p class="empty-message">
-                Your cart is empty.
-            </p>
-        `;
-
-        if (totalElement) {
-            totalElement.textContent =
-                "₱0.00";
-        }
-
-        return;
-    }
-
-    container.innerHTML =
-        cart
-            .map((item, index) => `
-                <div class="cart-item">
-
-                    <div>
-                        <h4>
-                            ${escapeHtml(item.name)}
-                        </h4>
-
-                        <p>
-                            ${item.quantity} ×
-                            ₱${formatPrice(item.price)}
-                        </p>
-                    </div>
-
-                    <div>
-                        <strong>
-                            ₱${formatPrice(
-                                item.price *
-                                item.quantity
-                            )}
-                        </strong>
-
-                        <br>
-
-                        <button
-                            type="button"
-                            class="cart-remove"
-                            data-index="${index}"
-                        >
-                            Remove
-                        </button>
-                    </div>
-
-                </div>
-            `)
-            .join("");
-
-    const total =
-        cart.reduce(
-            (sum, item) =>
-                sum +
-                (
-                    Number(item.price) *
-                    Number(item.quantity)
-                ),
-            0
-        );
-
-    if (totalElement) {
-
-        totalElement.textContent =
-            `₱${formatPrice(total)}`;
-
-    }
-
-}
-
 
 function saveCart() {
+  localStorage.setItem("glamsanity-cart", JSON.stringify(cart));
+}
 
-    try {
+function updateCart() {
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
-        localStorage.setItem(
-            "glamsanity-cart",
-            JSON.stringify(cart)
-        );
+  document.getElementById("cartCount").textContent = count;
+  document.getElementById("cartTotal").textContent = money(total);
 
-    } catch (error) {
+  const container = document.getElementById("cartItems");
 
-        console.warn(
-            "Could not save cart:",
-            error
-        );
+  if (!cart.length) {
+    container.innerHTML = "<p>Your cart is empty.</p>";
+    return;
+  }
 
+  container.innerHTML = cart.map((item, index) => `
+    <div class="cart-item">
+      <img src="${imageOrPlaceholder(item.image_url, item.name)}" alt="">
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <div>₱${money(item.price)} × ${item.quantity}</div>
+
+        <div class="cart-controls">
+          <button onclick="changeQuantity(${index}, -1)">−</button>
+          <span>${item.quantity}</span>
+          <button onclick="changeQuantity(${index}, 1)">+</button>
+          <button onclick="removeCartItem(${index})">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function changeQuantity(index, amount) {
+  const item = cart[index];
+  if (!item) return;
+
+  const source = getItem(item.type, item.id);
+
+  if (amount > 0 && item.type !== "container") {
+    if (item.quantity >= Number(source?.stock || 0)) {
+      alert("Maximum available stock reached.");
+      return;
     }
+  }
 
-    updateCartCount();
+  item.quantity += amount;
 
+  if (item.quantity <= 0) {
+    cart.splice(index, 1);
+  }
+
+  saveCart();
+  updateCart();
 }
 
-
-function updateCartCount() {
-
-    const count =
-        document.getElementById(
-            "cartCount"
-        );
-
-    if (!count) return;
-
-    count.textContent =
-        cart.reduce(
-            (sum, item) =>
-                sum +
-                Number(item.quantity || 0),
-            0
-        );
-
+function removeCartItem(index) {
+  cart.splice(index, 1);
+  saveCart();
+  updateCart();
 }
 
+function setupCart() {
+  document.getElementById("cartButton")
+    ?.addEventListener("click", () =>
+      document.getElementById("cartPanel").classList.add("open")
+    );
 
-/* =========================================================
-   THEME
-   ========================================================= */
+  document.getElementById("closeCart")
+    ?.addEventListener("click", () =>
+      document.getElementById("cartPanel").classList.remove("open")
+    );
+
+  document.getElementById("copyOrderButton")
+    ?.addEventListener("click", copyOrderSummary);
+
+  document.getElementById("closeImageModal")
+    ?.addEventListener("click", () =>
+      document.getElementById("imageModal").classList.remove("open")
+    );
+}
+
+async function copyOrderSummary() {
+  if (!cart.length) {
+    alert("Your cart is empty.");
+    return;
+  }
+
+  let text = "GLAMSANITY ORDER\n\n";
+
+  cart.forEach((item, index) => {
+    text += `${index + 1}. ${item.name}\n`;
+    text += `Quantity: ${item.quantity}\n`;
+    text += `Price: ₱${money(item.price)}\n`;
+    text += `Subtotal: ₱${money(item.price * item.quantity)}\n\n`;
+  });
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  text += `TOTAL: ₱${money(total)}\n`;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Order summary copied.");
+  } catch {
+    prompt("Copy your order summary:", text);
+  }
+}
 
 function setupTheme() {
+  const saved = localStorage.getItem("glamsanity-theme");
 
-    const button =
-        document.getElementById(
-            "themeToggle"
-        );
+  if (saved === "light") {
+    document.body.classList.add("light-theme");
+  }
 
-    let saved = "dark";
+  document.getElementById("themeToggle")
+    ?.addEventListener("click", () => {
+      document.body.classList.toggle("light-theme");
 
-    try {
-
-        saved =
-            localStorage.getItem(
-                "glamsanity-theme"
-            ) || "dark";
-
-    } catch {}
-
-    if (saved === "light") {
-
-        document.body.classList.add(
-            "light-theme"
-        );
-
-    }
-
-    updateThemeButton();
-
-    if (!button) return;
-
-    button.addEventListener(
-        "click",
-        () => {
-
-            document.body.classList.toggle(
-                "light-theme"
-            );
-
-            const light =
-                document.body.classList.contains(
-                    "light-theme"
-                );
-
-            try {
-
-                localStorage.setItem(
-                    "glamsanity-theme",
-                    light
-                        ? "light"
-                        : "dark"
-                );
-
-            } catch {}
-
-            updateThemeButton();
-
-        }
-    );
-
+      localStorage.setItem(
+        "glamsanity-theme",
+        document.body.classList.contains("light-theme")
+          ? "light"
+          : "dark"
+      );
+    });
 }
 
+function openImage(url, title) {
+  if (!url) return;
 
-function updateThemeButton() {
-
-    const button =
-        document.getElementById(
-            "themeToggle"
-        );
-
-    if (!button) return;
-
-    button.textContent =
-        document.body.classList.contains(
-            "light-theme"
-        )
-            ? "☀"
-            : "☾";
-
+  document.getElementById("modalImage").src = url;
+  document.getElementById("modalImage").alt = title || "";
+  document.getElementById("imageModal").classList.add("open");
 }
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function setText(id, value) {
-
-    const element =
-        document.getElementById(id);
-
-    if (element) {
-        element.textContent =
-            value || "";
-    }
-
-}
-
-
-function setCurrentYear() {
-
-    const year =
-        document.getElementById(
-            "currentYear"
-        );
-
-    if (year) {
-        year.textContent =
-            new Date().getFullYear();
-    }
-
-}
-
-
-function formatPrice(value) {
-
-    const number =
-        Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "0.00";
-    }
-
-    return number.toLocaleString(
-        "en-PH",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
-
-}
-
 
 function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-
-function escapeAttribute(value) {
-
-    return escapeHtml(value);
-
-}
-
-
-function showToast(
-    message,
-    type = "success"
-) {
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-    if (!toast) return;
-
-    toast.textContent =
-        message;
-
-    toast.className =
-        `toast ${type} show`;
-
-    clearTimeout(
-        showToast.timer
-    );
-
-    showToast.timer =
-        setTimeout(
-            () => {
-                toast.classList.remove(
-                    "show"
-                );
-            },
-            3000
-        );
-
+function escapeAttr(value) {
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'");
 }

@@ -1,2406 +1,1065 @@
 /* FILE 6: admin.js */
 
-/* =========================================================
-   GLAMSANITY ADMIN DASHBOARD
-   NO LOGIN
-   SUPABASE + IMAGE UPLOAD + CRUD
-   ========================================================= */
+const SUPABASE_URL = "https://dhbrmfoainutmimocqit.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_huQ5eTD3dDnbwY2nSAN0qA_XbMkhSY8";
+const STORAGE_BUCKET = "glamsanity-images";
 
-const SUPABASE_URL =
-    "https://dhbrmfoainutmimocqit.supabase.co";
-
-const SUPABASE_ANON_KEY =
-    "sb_publishable_huQ5eTD3dDnbwY2nSAN0qA_XbMkhSY8";
-
-const STORAGE_BUCKET =
-    "glamsanity-images";
-
-const MAX_IMAGE_SIZE =
-    10 * 1024 * 1024;
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
 let products = [];
 let bundles = [];
 let containers = [];
-let currentServices = [];
+let services = [];
+let settings = {};
+let policyImages = [];
+let paymentImages = [];
 
+document.addEventListener("DOMContentLoaded", async () => {
+  setupNavigation();
+  setupTheme();
+  setupForms();
+  setupImagePreviews();
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        setupNavigation();
-        setupTheme();
-        setupForms();
-        setupImageInputs();
-
-        loadEverything();
-
-    }
-);
-
-
-/* =========================================================
-   INITIAL LOAD
-   ========================================================= */
+  await loadEverything();
+});
 
 async function loadEverything() {
+  await Promise.all([
+    loadProducts(),
+    loadBundles(),
+    loadContainers(),
+    loadServices(),
+    loadSettings()
+  ]);
 
-    await Promise.all([
-        loadProducts(),
-        loadBundles(),
-        loadContainers(),
-        loadServices(),
-        loadCompanySettings(),
-        loadPaymentInformation()
-    ]);
+  renderProducts();
+  renderBundles();
+  renderContainers();
+  renderServicesEditor();
+  renderSettings();
 
-    updateDashboardCounts();
-
+  updateDashboard();
 }
-
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
 
 function setupNavigation() {
+  document.querySelectorAll(".nav-button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".nav-button")
+        .forEach(b => b.classList.remove("active"));
 
-    const buttons =
-        document.querySelectorAll(
-            ".nav-button"
-        );
+      document.querySelectorAll(".admin-section")
+        .forEach(section => section.classList.remove("active"));
 
-    const sections =
-        document.querySelectorAll(
-            ".admin-section"
-        );
+      button.classList.add("active");
 
-    buttons.forEach(button => {
+      const section = document.getElementById(
+        button.dataset.section
+      );
 
-        button.addEventListener(
-            "click",
-            () => {
-
-                const sectionId =
-                    button.dataset.section;
-
-                if (!sectionId) return;
-
-                buttons.forEach(btn =>
-                    btn.classList.remove(
-                        "active"
-                    )
-                );
-
-                button.classList.add(
-                    "active"
-                );
-
-                sections.forEach(section =>
-                    section.classList.remove(
-                        "active"
-                    )
-                );
-
-                const section =
-                    document.getElementById(
-                        sectionId
-                    );
-
-                if (section) {
-                    section.classList.add(
-                        "active"
-                    );
-                }
-
-                const title =
-                    document.getElementById(
-                        "pageTitle"
-                    );
-
-                const titles = {
-                    dashboard: "Dashboard",
-                    products: "Products",
-                    bundles: "Bundles",
-                    containers: "Containers",
-                    services: "Services Offered",
-                    settings: "Company Information",
-                    payment: "Payment Information"
-                };
-
-                if (title) {
-                    title.textContent =
-                        titles[sectionId] ||
-                        "Glamsanity";
-                }
-
-            }
-        );
-
+      section?.classList.add("active");
     });
-
+  });
 }
-
-
-/* =========================================================
-   THEME
-   ========================================================= */
 
 function setupTheme() {
+  if (localStorage.getItem("glamsanity-theme") === "light") {
+    document.body.classList.add("light-theme");
+  }
 
-    const button =
-        document.getElementById(
-            "themeToggle"
-        );
+  document.getElementById("themeToggle")
+    ?.addEventListener("click", () => {
+      document.body.classList.toggle("light-theme");
 
-    let saved = "dark";
-
-    try {
-        saved =
-            localStorage.getItem(
-                "glamsanity-theme"
-            ) || "dark";
-    } catch {}
-
-    if (saved === "light") {
-        document.body.classList.add(
-            "light-theme"
-        );
-    }
-
-    updateThemeButton();
-
-    if (!button) return;
-
-    button.addEventListener(
-        "click",
-        () => {
-
-            document.body.classList.toggle(
-                "light-theme"
-            );
-
-            const light =
-                document.body.classList.contains(
-                    "light-theme"
-                );
-
-            try {
-                localStorage.setItem(
-                    "glamsanity-theme",
-                    light
-                        ? "light"
-                        : "dark"
-                );
-            } catch {}
-
-            updateThemeButton();
-
-        }
-    );
-
+      localStorage.setItem(
+        "glamsanity-theme",
+        document.body.classList.contains("light-theme")
+          ? "light"
+          : "dark"
+      );
+    });
 }
-
-
-function updateThemeButton() {
-
-    const button =
-        document.getElementById(
-            "themeToggle"
-        );
-
-    if (!button) return;
-
-    button.textContent =
-        document.body.classList.contains(
-            "light-theme"
-        )
-            ? "☀ Dark Mode"
-            : "☾ Light Mode";
-
-}
-
-
-/* =========================================================
-   FORMS
-   ========================================================= */
 
 function setupForms() {
+  document.getElementById("productForm")
+    ?.addEventListener("submit", saveProduct);
 
-    const productForm =
-        document.getElementById(
-            "productForm"
-        );
+  document.getElementById("bundleForm")
+    ?.addEventListener("submit", saveBundle);
 
-    const bundleForm =
-        document.getElementById(
-            "bundleForm"
-        );
+  document.getElementById("containerForm")
+    ?.addEventListener("submit", saveContainer);
 
-    const containerForm =
-        document.getElementById(
-            "containerForm"
-        );
+  document.getElementById("companyForm")
+    ?.addEventListener("submit", saveCompany);
 
-    const companyForm =
-        document.getElementById(
-            "companyForm"
-        );
+  document.getElementById("paymentForm")
+    ?.addEventListener("submit", savePayment);
 
-    const paymentForm =
-        document.getElementById(
-            "paymentForm"
-        );
+  document.getElementById("policyForm")
+    ?.addEventListener("submit", savePolicies);
 
-    if (productForm) {
-        productForm.addEventListener(
-            "submit",
-            saveProduct
-        );
-    }
+  document.getElementById("saveServices")
+    ?.addEventListener("click", saveServices);
 
-    if (bundleForm) {
-        bundleForm.addEventListener(
-            "submit",
-            saveBundle
-        );
-    }
+  document.getElementById("addService")
+    ?.addEventListener("click", () => {
+      services.push({
+        name: "",
+        description: "",
+        image_url: "",
+        sort_order: services.length
+      });
 
-    if (containerForm) {
-        containerForm.addEventListener(
-            "submit",
-            saveContainer
-        );
-    }
+      renderServicesEditor();
+    });
 
-    if (companyForm) {
-        companyForm.addEventListener(
-            "submit",
-            saveCompanySettings
-        );
-    }
+  document.getElementById("cancelProduct")
+    ?.addEventListener("click", clearProductForm);
 
-    if (paymentForm) {
-        paymentForm.addEventListener(
-            "submit",
-            savePaymentInformation
-        );
-    }
+  document.getElementById("cancelBundle")
+    ?.addEventListener("click", clearBundleForm);
 
-    bindClick(
-        "cancelProduct",
-        clearProductForm
-    );
-
-    bindClick(
-        "cancelBundle",
-        clearBundleForm
-    );
-
-    bindClick(
-        "cancelContainer",
-        clearContainerForm
-    );
-
-    bindClick(
-        "saveServices",
-        saveServices
-    );
-
+  document.getElementById("cancelContainer")
+    ?.addEventListener("click", clearContainerForm);
 }
 
-
-/* =========================================================
-   IMAGE INPUTS
-   ========================================================= */
-
-function setupImageInputs() {
-
-    setupImagePreview(
-        "productImageFile",
-        "productImagePreview"
-    );
-
-    setupImagePreview(
-        "bundleImageFile",
-        "bundleImagePreview"
-    );
-
-    setupImagePreview(
-        "containerImageFile",
-        "containerImagePreview"
-    );
-
+function setupImagePreviews() {
+  previewFile("productImageFile", "productImagePreview");
+  previewFile("bundleImageFile", "bundleImagePreview");
+  previewFile("containerImageFile", "containerImagePreview");
 }
 
+function previewFile(inputId, previewId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
 
-function setupImagePreview(
-    inputId,
-    previewId
-) {
+  input?.addEventListener("change", () => {
+    const file = input.files?.[0];
 
-    const input =
-        document.getElementById(
-            inputId
-        );
-
-    const preview =
-        document.getElementById(
-            previewId
-        );
-
-    if (!input || !preview) return;
-
-    input.addEventListener(
-        "change",
-        () => {
-
-            const file =
-                input.files?.[0];
-
-            if (!file) return;
-
-            if (
-                !file.type.startsWith(
-                    "image/"
-                )
-            ) {
-
-                showToast(
-                    "Please select a valid image.",
-                    "error"
-                );
-
-                input.value = "";
-
-                return;
-            }
-
-            if (
-                file.size >
-                MAX_IMAGE_SIZE
-            ) {
-
-                showToast(
-                    "Image must be 10 MB or smaller.",
-                    "error"
-                );
-
-                input.value = "";
-
-                return;
-            }
-
-            const reader =
-                new FileReader();
-
-            reader.onload =
-                event => {
-
-                    preview.src =
-                        event.target.result;
-
-                    preview.classList.remove(
-                        "hidden"
-                    );
-
-                };
-
-            reader.readAsDataURL(
-                file
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   STORAGE
-   ========================================================= */
-
-async function uploadImage(
-    file,
-    folder
-) {
-
-    if (!file) return null;
-
-    if (!file.type.startsWith("image/")) {
-        throw new Error(
-            "Selected file is not an image."
-        );
+    if (!file) {
+      preview.style.display = "none";
+      return;
     }
 
-    if (file.size > MAX_IMAGE_SIZE) {
-        throw new Error(
-            "Image must be 10 MB or smaller."
-        );
-    }
-
-    const extension =
-        getExtension(file.name);
-
-    const base =
-        file.name
-            .replace(/\.[^/.]+$/, "")
-            .replace(
-                /[^a-zA-Z0-9-_]/g,
-                "-"
-            )
-            .toLowerCase() ||
-        "image";
-
-    const fileName =
-        `${Date.now()}-${Math.random()
-            .toString(36)
-            .substring(2,9)}-${base}.${extension}`;
-
-    const path =
-        `${folder}/${fileName}`;
-
-    const result =
-        await supabaseClient.storage
-            .from(STORAGE_BUCKET)
-            .upload(
-                path,
-                file,
-                {
-                    cacheControl: "3600",
-                    upsert: false,
-                    contentType: file.type
-                }
-            );
-
-    if (result.error) {
-        throw new Error(
-            result.error.message
-        );
-    }
-
-    const publicResult =
-        supabaseClient.storage
-            .from(STORAGE_BUCKET)
-            .getPublicUrl(path);
-
-    return publicResult.data.publicUrl;
-
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  });
 }
-
-
-function getExtension(name) {
-
-    const extension =
-        String(name)
-            .split(".")
-            .pop()
-            .toLowerCase();
-
-    const allowed = [
-        "jpg",
-        "jpeg",
-        "png",
-        "webp",
-        "gif"
-    ];
-
-    return allowed.includes(
-        extension
-    )
-        ? extension
-        : "jpg";
-
-}
-
-
-/* =========================================================
-   PRODUCTS
-   ========================================================= */
 
 async function loadProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    const result =
-        await supabaseClient
-            .from("products")
-            .select("*")
-            .order(
-                "id",
-                {
-                    ascending: false
-                }
-            );
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    if (result.error) {
-
-        console.error(
-            "Products:",
-            result.error
-        );
-
-        products = [];
-
-        showToast(
-            `Products error: ${result.error.message}`,
-            "error"
-        );
-
-    } else {
-
-        products =
-            result.data || [];
-
-    }
-
-    renderProducts();
-
+  products = data || [];
 }
-
-
-function renderProducts() {
-
-    const list =
-        document.getElementById(
-            "adminProductsList"
-        );
-
-    if (!list) return;
-
-    if (!products.length) {
-
-        list.innerHTML = `
-            <div class="loading">
-                No products available.
-            </div>
-        `;
-
-        return;
-    }
-
-    list.innerHTML =
-        products
-            .map(item =>
-                createAdminCard(
-                    item,
-                    "product"
-                )
-            )
-            .join("");
-
-}
-
-
-async function saveProduct(event) {
-
-    event?.preventDefault();
-
-    const name =
-        value("productName").trim();
-
-    if (!name) {
-
-        showToast(
-            "Please enter a product name.",
-            "error"
-        );
-
-        return;
-    }
-
-    const id =
-        value("productId");
-
-    const existing =
-        findById(products, id);
-
-    let image =
-        existing?.image_url ||
-        existing?.image ||
-        "";
-
-    try {
-
-        const file =
-            document.getElementById(
-                "productImageFile"
-            )?.files?.[0];
-
-        if (file) {
-
-            showToast(
-                "Uploading product image..."
-            );
-
-            image =
-                await uploadImage(
-                    file,
-                    "products"
-                );
-
-        }
-
-        const payload = {
-            name,
-            description:
-                value("productDescription").trim(),
-            category:
-                value("productCategory").trim(),
-            price:
-                number("productPrice"),
-            stock:
-                integer("productStock"),
-            image_url:
-                image || null
-        };
-
-        let result;
-
-        if (id) {
-
-            result =
-                await supabaseClient
-                    .from("products")
-                    .update(payload)
-                    .eq("id", id);
-
-        } else {
-
-            result =
-                await supabaseClient
-                    .from("products")
-                    .insert(payload);
-
-        }
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showToast(
-            id
-                ? "Product updated successfully."
-                : "Product added successfully."
-        );
-
-        clearProductForm();
-
-        await loadProducts();
-
-        updateDashboardCounts();
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            `Could not save product: ${error.message}`,
-            "error"
-        );
-
-    }
-
-}
-
-
-function editProduct(id) {
-
-    const item =
-        findById(products, id);
-
-    if (!item) return;
-
-    setValue("productId", item.id);
-    setValue("productName", item.name);
-    setValue("productDescription", item.description);
-    setValue("productCategory", item.category);
-    setValue("productPrice", item.price);
-    setValue("productStock", item.stock);
-
-    showPreview(
-        "productImagePreview",
-        item.image_url || item.image
-    );
-
-    clearFile(
-        "productImageFile"
-    );
-
-    switchSection("products");
-
-}
-
-
-async function deleteProduct(id) {
-
-    const item =
-        findById(products, id);
-
-    if (!item) return;
-
-    if (
-        !confirm(
-            `Delete "${item.name}"?`
-        )
-    ) {
-        return;
-    }
-
-    const result =
-        await supabaseClient
-            .from("products")
-            .delete()
-            .eq("id", id);
-
-    if (result.error) {
-
-        showToast(
-            `Could not delete product: ${result.error.message}`,
-            "error"
-        );
-
-        return;
-    }
-
-    showToast(
-        "Product deleted successfully."
-    );
-
-    await loadProducts();
-
-    updateDashboardCounts();
-
-}
-
-
-function clearProductForm() {
-
-    document
-        .getElementById("productForm")
-        ?.reset();
-
-    setValue(
-        "productId",
-        ""
-    );
-
-    hidePreview(
-        "productImagePreview"
-    );
-
-    clearFile(
-        "productImageFile"
-    );
-
-}
-
-
-/* =========================================================
-   BUNDLES
-   ========================================================= */
 
 async function loadBundles() {
+  const { data, error } = await supabaseClient
+    .from("bundles")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    const result =
-        await supabaseClient
-            .from("bundles")
-            .select("*")
-            .order(
-                "id",
-                {
-                    ascending: false
-                }
-            );
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    if (result.error) {
-
-        bundles = [];
-
-        showToast(
-            `Bundles error: ${result.error.message}`,
-            "error"
-        );
-
-    } else {
-
-        bundles =
-            result.data || [];
-
-    }
-
-    renderBundles();
-
+  bundles = data || [];
 }
-
-
-function renderBundles() {
-
-    const list =
-        document.getElementById(
-            "adminBundlesList"
-        );
-
-    if (!list) return;
-
-    if (!bundles.length) {
-
-        list.innerHTML = `
-            <div class="loading">
-                No bundles available.
-            </div>
-        `;
-
-        return;
-    }
-
-    list.innerHTML =
-        bundles
-            .map(item =>
-                createAdminCard(
-                    item,
-                    "bundle"
-                )
-            )
-            .join("");
-
-}
-
-
-async function saveBundle(event) {
-
-    event?.preventDefault();
-
-    const name =
-        value("bundleName").trim();
-
-    if (!name) {
-
-        showToast(
-            "Please enter a bundle name.",
-            "error"
-        );
-
-        return;
-    }
-
-    const id =
-        value("bundleId");
-
-    const existing =
-        findById(bundles, id);
-
-    let image =
-        existing?.image_url ||
-        existing?.image ||
-        "";
-
-    try {
-
-        const file =
-            document.getElementById(
-                "bundleImageFile"
-            )?.files?.[0];
-
-        if (file) {
-
-            showToast(
-                "Uploading bundle image..."
-            );
-
-            image =
-                await uploadImage(
-                    file,
-                    "bundles"
-                );
-
-        }
-
-        const payload = {
-            name,
-            description:
-                value("bundleDescription").trim(),
-            price:
-                number("bundlePrice"),
-            stock:
-                integer("bundleStock"),
-            image_url:
-                image || null
-        };
-
-        let result;
-
-        if (id) {
-
-            result =
-                await supabaseClient
-                    .from("bundles")
-                    .update(payload)
-                    .eq("id", id);
-
-        } else {
-
-            result =
-                await supabaseClient
-                    .from("bundles")
-                    .insert(payload);
-
-        }
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showToast(
-            id
-                ? "Bundle updated successfully."
-                : "Bundle added successfully."
-        );
-
-        clearBundleForm();
-
-        await loadBundles();
-
-        updateDashboardCounts();
-
-    } catch (error) {
-
-        showToast(
-            `Could not save bundle: ${error.message}`,
-            "error"
-        );
-
-    }
-
-}
-
-
-function editBundle(id) {
-
-    const item =
-        findById(bundles, id);
-
-    if (!item) return;
-
-    setValue("bundleId", item.id);
-    setValue("bundleName", item.name);
-    setValue("bundleDescription", item.description);
-    setValue("bundlePrice", item.price);
-    setValue("bundleStock", item.stock);
-
-    showPreview(
-        "bundleImagePreview",
-        item.image_url || item.image
-    );
-
-    clearFile(
-        "bundleImageFile"
-    );
-
-    switchSection("bundles");
-
-}
-
-
-async function deleteBundle(id) {
-
-    const item =
-        findById(bundles, id);
-
-    if (!item) return;
-
-    if (
-        !confirm(
-            `Delete "${item.name}"?`
-        )
-    ) {
-        return;
-    }
-
-    const result =
-        await supabaseClient
-            .from("bundles")
-            .delete()
-            .eq("id", id);
-
-    if (result.error) {
-
-        showToast(
-            `Could not delete bundle: ${result.error.message}`,
-            "error"
-        );
-
-        return;
-    }
-
-    showToast(
-        "Bundle deleted successfully."
-    );
-
-    await loadBundles();
-
-    updateDashboardCounts();
-
-}
-
-
-function clearBundleForm() {
-
-    document
-        .getElementById("bundleForm")
-        ?.reset();
-
-    setValue(
-        "bundleId",
-        ""
-    );
-
-    hidePreview(
-        "bundleImagePreview"
-    );
-
-    clearFile(
-        "bundleImageFile"
-    );
-
-}
-
-
-/* =========================================================
-   CONTAINERS
-   ========================================================= */
 
 async function loadContainers() {
+  const { data, error } = await supabaseClient
+    .from("containers")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    const result =
-        await supabaseClient
-            .from("containers")
-            .select("*")
-            .order(
-                "id",
-                {
-                    ascending: false
-                }
-            );
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    if (result.error) {
-
-        containers = [];
-
-        showToast(
-            `Containers error: ${result.error.message}`,
-            "error"
-        );
-
-    } else {
-
-        containers =
-            result.data || [];
-
-    }
-
-    renderContainers();
-
+  containers = data || [];
 }
-
-
-function renderContainers() {
-
-    const list =
-        document.getElementById(
-            "adminContainersList"
-        );
-
-    if (!list) return;
-
-    if (!containers.length) {
-
-        list.innerHTML = `
-            <div class="loading">
-                No containers available.
-            </div>
-        `;
-
-        return;
-    }
-
-    list.innerHTML =
-        containers
-            .map(item =>
-                createAdminCard(
-                    item,
-                    "container"
-                )
-            )
-            .join("");
-
-}
-
-
-async function saveContainer(event) {
-
-    event?.preventDefault();
-
-    const name =
-        value("containerName").trim();
-
-    if (!name) {
-
-        showToast(
-            "Please enter a container name.",
-            "error"
-        );
-
-        return;
-    }
-
-    const id =
-        value("containerId");
-
-    const existing =
-        findById(containers, id);
-
-    let image =
-        existing?.image_url ||
-        existing?.image ||
-        "";
-
-    try {
-
-        const file =
-            document.getElementById(
-                "containerImageFile"
-            )?.files?.[0];
-
-        if (file) {
-
-            showToast(
-                "Uploading container image..."
-            );
-
-            image =
-                await uploadImage(
-                    file,
-                    "containers"
-                );
-
-        }
-
-        const payload = {
-            name,
-            description:
-                value("containerDescription").trim(),
-            price:
-                number("containerPrice"),
-            stock:
-                integer("containerStock"),
-            source:
-                value("containerSource").trim(),
-            image_url:
-                image || null
-        };
-
-        let result;
-
-        if (id) {
-
-            result =
-                await supabaseClient
-                    .from("containers")
-                    .update(payload)
-                    .eq("id", id);
-
-        } else {
-
-            result =
-                await supabaseClient
-                    .from("containers")
-                    .insert(payload);
-
-        }
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showToast(
-            id
-                ? "Container updated successfully."
-                : "Container added successfully."
-        );
-
-        clearContainerForm();
-
-        await loadContainers();
-
-        updateDashboardCounts();
-
-    } catch (error) {
-
-        showToast(
-            `Could not save container: ${error.message}`,
-            "error"
-        );
-
-    }
-
-}
-
-
-function editContainer(id) {
-
-    const item =
-        findById(containers, id);
-
-    if (!item) return;
-
-    setValue("containerId", item.id);
-    setValue("containerName", item.name);
-    setValue("containerDescription", item.description);
-    setValue("containerPrice", item.price);
-    setValue("containerStock", item.stock);
-    setValue("containerSource", item.source);
-
-    showPreview(
-        "containerImagePreview",
-        item.image_url || item.image
-    );
-
-    clearFile(
-        "containerImageFile"
-    );
-
-    switchSection("containers");
-
-}
-
-
-async function deleteContainer(id) {
-
-    const item =
-        findById(containers, id);
-
-    if (!item) return;
-
-    if (
-        !confirm(
-            `Delete "${item.name}"?`
-        )
-    ) {
-        return;
-    }
-
-    const result =
-        await supabaseClient
-            .from("containers")
-            .delete()
-            .eq("id", id);
-
-    if (result.error) {
-
-        showToast(
-            `Could not delete container: ${result.error.message}`,
-            "error"
-        );
-
-        return;
-    }
-
-    showToast(
-        "Container deleted successfully."
-    );
-
-    await loadContainers();
-
-    updateDashboardCounts();
-
-}
-
-
-function clearContainerForm() {
-
-    document
-        .getElementById("containerForm")
-        ?.reset();
-
-    setValue(
-        "containerId",
-        ""
-    );
-
-    hidePreview(
-        "containerImagePreview"
-    );
-
-    clearFile(
-        "containerImageFile"
-    );
-
-}
-
-
-/* =========================================================
-   ADMIN CARD
-   ========================================================= */
-
-function createAdminCard(
-    item,
-    type
-) {
-
-    const name =
-        item.name ||
-        "Unnamed Item";
-
-    const description =
-        item.description ||
-        "No description provided.";
-
-    const image =
-        item.image_url ||
-        item.image ||
-        "";
-
-    const price =
-        Number(item.price || 0);
-
-    const stock =
-        Number(item.stock || 0);
-
-    return `
-        <div class="admin-item">
-
-            <div class="admin-item-image">
-
-                ${
-                    image
-                        ? `
-                            <img
-                                src="${escapeAttribute(image)}"
-                                alt="${escapeAttribute(name)}"
-                                loading="lazy"
-                            >
-                          `
-                        : `
-                            <div class="admin-placeholder">
-                                GLAMSANITY
-                            </div>
-                          `
-                }
-
-            </div>
-
-            <div class="admin-item-content">
-
-                <h3>
-                    ${escapeHtml(name)}
-                </h3>
-
-                <p>
-                    ${escapeHtml(description)}
-                </p>
-
-                <p>
-                    ₱${formatPrice(price)}
-                    &nbsp; • &nbsp;
-                    Stock: ${stock}
-                </p>
-
-                ${
-                    type === "container"
-                        ? `
-                            <p>
-                                <strong>Source:</strong>
-                                ${escapeHtml(
-                                    item.source ||
-                                    "Not specified"
-                                )}
-                            </p>
-                          `
-                        : ""
-                }
-
-                <div class="admin-actions">
-
-                    <button
-                        type="button"
-                        class="edit-button"
-                        data-action="edit"
-                        data-type="${type}"
-                        data-id="${item.id}"
-                    >
-                        Edit
-                    </button>
-
-                    <button
-                        type="button"
-                        class="delete-button"
-                        data-action="delete"
-                        data-type="${type}"
-                        data-id="${item.id}"
-                    >
-                        Delete
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-
-document.addEventListener(
-    "click",
-    event => {
-
-        const button =
-            event.target.closest(
-                "[data-action]"
-            );
-
-        if (!button) return;
-
-        const action =
-            button.dataset.action;
-
-        const type =
-            button.dataset.type;
-
-        const id =
-            button.dataset.id;
-
-        if (action === "edit") {
-
-            if (type === "product") {
-                editProduct(id);
-            }
-
-            if (type === "bundle") {
-                editBundle(id);
-            }
-
-            if (type === "container") {
-                editContainer(id);
-            }
-
-        }
-
-        if (action === "delete") {
-
-            if (type === "product") {
-                deleteProduct(id);
-            }
-
-            if (type === "bundle") {
-                deleteBundle(id);
-            }
-
-            if (type === "container") {
-                deleteContainer(id);
-            }
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   SERVICES
-   ========================================================= */
 
 async function loadServices() {
+  const { data, error } = await supabaseClient
+    .from("services")
+    .select("*")
+    .order("sort_order", { ascending: true });
 
-    const result =
-        await supabaseClient
-            .from("glamsanity_settings")
-            .select("services_offered")
-            .eq("id", 1)
-            .maybeSingle();
+  if (!error) {
+    services = data || [];
+  }
 
-    if (result.error) {
+  if (!services.length) {
+    const { data: fallback } = await supabaseClient
+      .from("glamsanity_settings")
+      .select("services_offered")
+      .eq("id", 1)
+      .maybeSingle();
 
-        currentServices = [];
+    if (fallback?.services_offered) {
+      services = Array.isArray(fallback.services_offered)
+        ? fallback.services_offered
+        : [];
+    }
+  }
+}
 
-        showToast(
-            `Services error: ${result.error.message}`,
-            "error"
-        );
+async function loadSettings() {
+  const { data, error } = await supabaseClient
+    .from("glamsanity_settings")
+    .select("*")
+    .eq("id", 1)
+    .maybeSingle();
 
-    } else {
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-        currentServices =
-            Array.isArray(
-                result.data?.services_offered
-            )
-                ? result.data.services_offered
-                : [];
+  settings = data || {};
 
+  policyImages = settings.rules_policy_images || [];
+  paymentImages = settings.payment_mode_images || [];
+}
+
+async function uploadImage(file, folder) {
+  if (!file) return null;
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Only image files are allowed.");
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error("Image must be 10 MB or smaller.");
+  }
+
+  const extension =
+    file.name.split(".").pop().toLowerCase() || "jpg";
+
+  const filename =
+    `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+
+  const { error } = await supabaseClient.storage
+    .from(STORAGE_BUCKET)
+    .upload(filename, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) throw error;
+
+  const { data } = supabaseClient.storage
+    .from(STORAGE_BUCKET)
+    .getPublicUrl(filename);
+
+  return data.publicUrl;
+}
+
+async function uploadMultiple(files, folder) {
+  const urls = [];
+
+  for (const file of Array.from(files || [])) {
+    const url = await uploadImage(file, folder);
+    if (url) urls.push(url);
+  }
+
+  return urls;
+}
+
+async function saveProduct(event) {
+  event.preventDefault();
+
+  try {
+    const id = document.getElementById("productId").value;
+    const file = document.getElementById("productImageFile").files[0];
+
+    let imageUrl = id
+      ? products.find(p => Number(p.id) === Number(id))?.image_url || ""
+      : "";
+
+    if (file) {
+      imageUrl = await uploadImage(file, "products");
     }
 
-    renderServiceEditor();
-
-}
-
-
-function renderServiceEditor() {
-
-    const editor =
-        document.getElementById(
-            "servicesEditor"
-        );
-
-    if (!editor) return;
-
-    const count =
-        Math.max(
-            currentServices.length,
-            6
-        );
-
-    const services = [];
-
-    for (let i = 0; i < count; i++) {
-
-        services.push(
-            currentServices[i] || {
-                name: "",
-                description: "",
-                image: ""
-            }
-        );
-
-    }
-
-    editor.innerHTML =
-        services
-            .map(
-                (service, index) =>
-                    serviceEditor(
-                        service,
-                        index
-                    )
-            )
-            .join("");
-
-    setupServiceImageInputs();
-
-}
-
-
-function serviceEditor(
-    service,
-    index
-) {
-
-    const image =
-        service.image || "";
-
-    return `
-        <div
-            class="service-editor-card"
-            data-service-index="${index}"
-        >
-
-            <h3>
-                Service ${String(index + 1).padStart(2, "0")}
-            </h3>
-
-            <label>
-                Service Name
-
-                <input
-                    type="text"
-                    class="service-name"
-                    value="${escapeAttribute(
-                        service.name || ""
-                    )}"
-                    placeholder="Service name"
-                >
-            </label>
-
-            <label>
-                Description
-
-                <textarea
-                    class="service-description"
-                    rows="4"
-                    placeholder="Service description"
-                >${escapeHtml(
-                    service.description || ""
-                )}</textarea>
-            </label>
-
-            <label>
-                Service Image
-
-                <input
-                    type="file"
-                    class="service-image-file"
-                    data-index="${index}"
-                    accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
-                >
-            </label>
-
-            <div
-                class="service-image-preview"
-                id="servicePreview${index}"
-            >
-
-                ${
-                    image
-                        ? `
-                            <img
-                                src="${escapeAttribute(image)}"
-                                alt="Service image"
-                            >
-                          `
-                        : `
-                            <span class="admin-placeholder">
-                                GLAMSANITY
-                            </span>
-                          `
-                }
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-
-function setupServiceImageInputs() {
-
-    document
-        .querySelectorAll(
-            ".service-image-file"
-        )
-        .forEach(input => {
-
-            input.addEventListener(
-                "change",
-                () => {
-
-                    const file =
-                        input.files?.[0];
-
-                    if (!file) return;
-
-                    if (
-                        !file.type.startsWith(
-                            "image/"
-                        )
-                    ) {
-
-                        input.value = "";
-
-                        showToast(
-                            "Please select a valid image.",
-                            "error"
-                        );
-
-                        return;
-                    }
-
-                    if (
-                        file.size >
-                        MAX_IMAGE_SIZE
-                    ) {
-
-                        input.value = "";
-
-                        showToast(
-                            "Image must be 10 MB or smaller.",
-                            "error"
-                        );
-
-                        return;
-                    }
-
-                    const preview =
-                        document.getElementById(
-                            `servicePreview${input.dataset.index}`
-                        );
-
-                    const reader =
-                        new FileReader();
-
-                    reader.onload =
-                        event => {
-
-                            preview.innerHTML = `
-                                <img
-                                    src="${escapeAttribute(
-                                        event.target.result
-                                    )}"
-                                    alt="Service preview"
-                                >
-                            `;
-
-                        };
-
-                    reader.readAsDataURL(file);
-
-                }
-            );
-
-        });
-
-}
-
-
-async function saveServices(event) {
-
-    event?.preventDefault();
-
-    const cards =
-        document.querySelectorAll(
-            ".service-editor-card"
-        );
-
-    const services = [];
-
-    try {
-
-        for (
-            let index = 0;
-            index < cards.length;
-            index++
-        ) {
-
-            const card =
-                cards[index];
-
-            const name =
-                card
-                    .querySelector(
-                        ".service-name"
-                    )
-                    ?.value
-                    .trim() || "";
-
-            const description =
-                card
-                    .querySelector(
-                        ".service-description"
-                    )
-                    ?.value
-                    .trim() || "";
-
-            const file =
-                card
-                    .querySelector(
-                        ".service-image-file"
-                    )
-                    ?.files?.[0];
-
-            let image =
-                currentServices[index]
-                    ?.image || "";
-
-            if (file) {
-
-                showToast(
-                    `Uploading Service ${index + 1}...`
-                );
-
-                image =
-                    await uploadImage(
-                        file,
-                        "services"
-                    );
-
-            }
-
-            if (
-                name ||
-                description ||
-                image
-            ) {
-
-                services.push({
-                    name,
-                    description,
-                    image
-                });
-
-            }
-
-        }
-
-        const result =
-            await upsertSettings({
-                services_offered:
-                    services
-            });
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        currentServices =
-            services;
-
-        renderServiceEditor();
-
-        showToast(
-            "Services saved successfully."
-        );
-
-        updateDashboardCounts();
-
-    } catch (error) {
-
-        showToast(
-            `Could not save services: ${error.message}`,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   COMPANY INFORMATION
-   ========================================================= */
-
-async function loadCompanySettings() {
-
-    const result =
-        await supabaseClient
-            .from("glamsanity_settings")
-            .select(
-                "company_intro,company_mission,company_vision"
-            )
-            .eq("id", 1)
-            .maybeSingle();
-
-    if (result.error) {
-
-        showToast(
-            `Company settings error: ${result.error.message}`,
-            "error"
-        );
-
-        return;
-    }
-
-    setValue(
-        "companyIntroInput",
-        result.data?.company_intro || ""
-    );
-
-    setValue(
-        "companyMissionInput",
-        result.data?.company_mission || ""
-    );
-
-    setValue(
-        "companyVisionInput",
-        result.data?.company_vision || ""
-    );
-
-}
-
-
-async function saveCompanySettings(event) {
-
-    event?.preventDefault();
-
-    try {
-
-        const result =
-            await upsertSettings({
-                company_intro:
-                    value("companyIntroInput").trim(),
-
-                company_mission:
-                    value("companyMissionInput").trim(),
-
-                company_vision:
-                    value("companyVisionInput").trim()
-            });
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showToast(
-            "Company information saved successfully."
-        );
-
-    } catch (error) {
-
-        showToast(
-            `Could not save company information: ${error.message}`,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   PAYMENT INFORMATION
-   ========================================================= */
-
-async function loadPaymentInformation() {
-
-    const result =
-        await supabaseClient
-            .from("glamsanity_settings")
-            .select("payment_information")
-            .eq("id", 1)
-            .maybeSingle();
-
-    if (result.error) {
-
-        showToast(
-            `Payment settings error: ${result.error.message}`,
-            "error"
-        );
-
-        return;
-    }
-
-    const payment =
-        result.data?.payment_information || {};
-
-    setValue(
-        "paymentMethodsInput",
-        payment.methods || ""
-    );
-
-    setValue(
-        "paymentInstructionsInput",
-        payment.instructions || ""
-    );
-
-    setValue(
-        "paymentDownPaymentInput",
-        payment.down_payment || ""
-    );
-
-    setValue(
-        "paymentScheduleInput",
-        payment.schedule || ""
-    );
-
-    setValue(
-        "paymentConfirmationInput",
-        payment.confirmation || ""
-    );
-
-    setValue(
-        "paymentRemindersInput",
-        payment.reminders || ""
-    );
-
-}
-
-
-async function savePaymentInformation(event) {
-
-    event?.preventDefault();
-
-    const payment = {
-
-        methods:
-            value(
-                "paymentMethodsInput"
-            ).trim(),
-
-        instructions:
-            value(
-                "paymentInstructionsInput"
-            ).trim(),
-
-        down_payment:
-            value(
-                "paymentDownPaymentInput"
-            ).trim(),
-
-        schedule:
-            value(
-                "paymentScheduleInput"
-            ).trim(),
-
-        confirmation:
-            value(
-                "paymentConfirmationInput"
-            ).trim(),
-
-        reminders:
-            value(
-                "paymentRemindersInput"
-            ).trim()
-
+    const record = {
+      name: document.getElementById("productName").value.trim(),
+      description: document.getElementById("productDescription").value.trim(),
+      category: document.getElementById("productCategory").value.trim(),
+      price: Number(document.getElementById("productPrice").value || 0),
+      stock: Number(document.getElementById("productStock").value || 0),
+      stock_checked_date:
+        document.getElementById("productStockCheckedDate").value || null,
+      image_url: imageUrl
     };
 
-    try {
+    let result;
 
-        const result =
-            await upsertSettings({
-                payment_information:
-                    payment
-            });
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showToast(
-            "Payment information saved successfully."
-        );
-
-    } catch (error) {
-
-        showToast(
-            `Could not save payment information: ${error.message}`,
-            "error"
-        );
-
+    if (id) {
+      result = await supabaseClient
+        .from("products")
+        .update(record)
+        .eq("id", id);
+    } else {
+      result = await supabaseClient
+        .from("products")
+        .insert(record);
     }
 
+    if (result.error) throw result.error;
+
+    alert("Product saved.");
+    clearProductForm();
+    await loadProducts();
+    renderProducts();
+    updateDashboard();
+
+  } catch (error) {
+    alert("Error saving product: " + error.message);
+  }
 }
 
+async function saveBundle(event) {
+  event.preventDefault();
 
-/* =========================================================
-   SETTINGS UPSERT
-   ========================================================= */
-
-async function upsertSettings(fields) {
-
-    const existing =
-        await supabaseClient
-            .from("glamsanity_settings")
-            .select("id")
-            .eq("id", 1)
-            .maybeSingle();
-
-    if (existing.error) {
-        return {
-            error: existing.error
-        };
-    }
-
-    if (existing.data) {
-
-        return await supabaseClient
-            .from("glamsanity_settings")
-            .update(fields)
-            .eq("id", 1);
-
-    }
-
-    return await supabaseClient
-        .from("glamsanity_settings")
-        .insert({
-            id: 1,
-            ...fields
-        });
-
-}
-
-
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-function updateDashboardCounts() {
-
-    setText(
-        "productCount",
-        products.length
+  try {
+    const id = document.getElementById("bundleId").value;
+    const existing = bundles.find(
+      b => Number(b.id) === Number(id)
     );
 
-    setText(
-        "bundleCount",
-        bundles.length
-    );
+    const file = document.getElementById("bundleImageFile").files[0];
 
-    setText(
-        "containerCount",
-        containers.length
-    );
+    let imageUrl = existing?.image_url || "";
 
-    setText(
-        "serviceCount",
-        currentServices.length
-    );
-
-}
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function bindClick(id, callback) {
-
-    const element =
-        document.getElementById(id);
-
-    if (element) {
-        element.addEventListener(
-            "click",
-            callback
-        );
+    if (file) {
+      imageUrl = await uploadImage(file, "bundles");
     }
 
+    const record = {
+      name: document.getElementById("bundleName").value.trim(),
+      description: document.getElementById("bundleDescription").value.trim(),
+      price: Number(document.getElementById("bundlePrice").value || 0),
+      stock: Number(document.getElementById("bundleStock").value || 0),
+      stock_checked_date:
+        document.getElementById("bundleStockCheckedDate").value || null,
+      image_url: imageUrl
+    };
+
+    const result = id
+      ? await supabaseClient.from("bundles").update(record).eq("id", id)
+      : await supabaseClient.from("bundles").insert(record);
+
+    if (result.error) throw result.error;
+
+    alert("Bundle saved.");
+    clearBundleForm();
+
+    await loadBundles();
+    renderBundles();
+    updateDashboard();
+
+  } catch (error) {
+    alert("Error saving bundle: " + error.message);
+  }
 }
 
+async function saveContainer(event) {
+  event.preventDefault();
 
-function switchSection(sectionId) {
-
-    const button =
-        document.querySelector(
-            `.nav-button[data-section="${sectionId}"]`
-        );
-
-    if (button) {
-        button.click();
-    }
-
-}
-
-
-function findById(list, id) {
-
-    if (!id) return null;
-
-    return list.find(
-        item =>
-            String(item.id) ===
-            String(id)
-    ) || null;
-
-}
-
-
-function value(id) {
-
-    return String(
-        document.getElementById(id)
-            ?.value ?? ""
+  try {
+    const id = document.getElementById("containerId").value;
+    const existing = containers.find(
+      c => Number(c.id) === Number(id)
     );
 
-}
+    const file = document.getElementById("containerImageFile").files[0];
 
+    let imageUrl = existing?.image_url || "";
 
-function setValue(id, value) {
-
-    const element =
-        document.getElementById(id);
-
-    if (element) {
-        element.value =
-            value ?? "";
+    if (file) {
+      imageUrl = await uploadImage(file, "containers");
     }
 
+    const record = {
+      name: document.getElementById("containerName").value.trim(),
+      description: document.getElementById("containerDescription").value.trim(),
+      price: Number(document.getElementById("containerPrice").value || 0),
+      stock: Number(document.getElementById("containerStock").value || 0),
+      stock_checked_date:
+        document.getElementById("containerStockCheckedDate").value || null,
+      lead_time:
+        document.getElementById("containerLeadTime").value.trim(),
+      image_url: imageUrl,
+      source:
+        document.getElementById("containerSource").value.trim()
+    };
+
+    const result = id
+      ? await supabaseClient.from("containers").update(record).eq("id", id)
+      : await supabaseClient.from("containers").insert(record);
+
+    if (result.error) throw result.error;
+
+    alert("Container saved.");
+    clearContainerForm();
+
+    await loadContainers();
+    renderContainers();
+    updateDashboard();
+
+  } catch (error) {
+    alert("Error saving container: " + error.message);
+  }
 }
 
+function renderProducts() {
+  const list = document.getElementById("adminProductsList");
 
-function number(id) {
+  list.innerHTML = products.length
+    ? products.map(item => `
+      <article class="admin-item">
+        <img src="${item.image_url || placeholder(item.name)}" alt="">
+        <div class="admin-item-content">
+          <h3>${escapeHtml(item.name)}</h3>
+          <p>${escapeHtml(item.description || "")}</p>
+          <p>Price: ₱${money(item.price)}</p>
+          <p>Available Stock: ${Number(item.stock || 0)}</p>
+          <p>
+            Stock Checked:
+            ${item.stock_checked_date
+              ? new Date(item.stock_checked_date).toLocaleDateString()
+              : "Not specified"}
+          </p>
 
-    const result =
-        parseFloat(value(id));
-
-    return Number.isFinite(result)
-        ? Math.max(0, result)
-        : 0;
-
+          <div class="admin-actions">
+            <button class="edit-button"
+              onclick="editProduct(${item.id})">Edit</button>
+            <button class="delete-button"
+              onclick="deleteProduct(${item.id})">Delete</button>
+          </div>
+        </div>
+      </article>
+    `).join("")
+    : "<p>No products.</p>";
 }
 
+function renderBundles() {
+  const list = document.getElementById("adminBundlesList");
 
-function integer(id) {
+  list.innerHTML = bundles.length
+    ? bundles.map(item => `
+      <article class="admin-item">
+        <img src="${item.image_url || placeholder(item.name)}" alt="">
+        <div class="admin-item-content">
+          <h3>${escapeHtml(item.name)}</h3>
+          <p>${escapeHtml(item.description || "")}</p>
+          <p>Price: ₱${money(item.price)}</p>
+          <p>Available Stock: ${Number(item.stock || 0)}</p>
+          <p>
+            Stock Checked:
+            ${item.stock_checked_date
+              ? new Date(item.stock_checked_date).toLocaleDateString()
+              : "Not specified"}
+          </p>
 
-    const result =
-        parseInt(value(id), 10);
-
-    return Number.isFinite(result)
-        ? Math.max(0, result)
-        : 0;
-
+          <div class="admin-actions">
+            <button class="edit-button"
+              onclick="editBundle(${item.id})">Edit</button>
+            <button class="delete-button"
+              onclick="deleteBundle(${item.id})">Delete</button>
+          </div>
+        </div>
+      </article>
+    `).join("")
+    : "<p>No bundles.</p>";
 }
 
+function renderContainers() {
+  const list = document.getElementById("adminContainersList");
 
-function setText(id, value) {
+  list.innerHTML = containers.length
+    ? containers.map(item => `
+      <article class="admin-item">
+        <img src="${item.image_url || placeholder(item.name)}" alt="">
+        <div class="admin-item-content">
+          <h3>${escapeHtml(item.name)}</h3>
+          <p>${escapeHtml(item.description || "")}</p>
+          <p>Price: ₱${money(item.price)}</p>
+          <p>Available Stock: ${Number(item.stock || 0)}</p>
+          <p>
+            Stock Checked:
+            ${item.stock_checked_date
+              ? new Date(item.stock_checked_date).toLocaleDateString()
+              : "Not specified"}
+          </p>
+          <p>
+            Estimated Lead Time:
+            ${escapeHtml(item.lead_time || "Not specified")}
+          </p>
+          <p>Source: ${escapeHtml(item.source || "Not specified")}</p>
 
-    const element =
-        document.getElementById(id);
+          <div class="admin-actions">
+            <button class="edit-button"
+              onclick="editContainer(${item.id})">Edit</button>
+            <button class="delete-button"
+              onclick="deleteContainer(${item.id})">Delete</button>
+          </div>
+        </div>
+      </article>
+    `).join("")
+    : "<p>No containers.</p>";
+}
 
-    if (element) {
-        element.textContent =
-            value ?? "";
+function renderServicesEditor() {
+  const editor = document.getElementById("servicesEditor");
+
+  editor.innerHTML = services.map((service, index) => `
+    <div class="service-editor-card">
+      <h3>Service ${index + 1}</h3>
+
+      <label>
+        Service Name
+        <input
+          class="service-name"
+          data-index="${index}"
+          value="${escapeAttr(service.name || "")}">
+      </label>
+
+      <label>
+        Description
+        <textarea class="service-description"
+          data-index="${index}">${escapeHtml(service.description || "")}</textarea>
+      </label>
+
+      <label>
+        Service Image
+        <input
+          type="file"
+          class="service-image"
+          data-index="${index}"
+          accept="image/*">
+      </label>
+
+      ${service.image_url
+        ? `<img class="service-current-image"
+                src="${service.image_url}"
+                style="width:180px;height:140px;object-fit:cover;">`
+        : ""}
+
+      <button
+        type="button"
+        class="delete-button remove-service"
+        data-index="${index}">
+        Remove Service
+      </button>
+    </div>
+  `).join("");
+
+  editor.querySelectorAll(".service-name").forEach(input => {
+    input.addEventListener("input", () => {
+      services[input.dataset.index].name = input.value;
+    });
+  });
+
+  editor.querySelectorAll(".service-description").forEach(input => {
+    input.addEventListener("input", () => {
+      services[input.dataset.index].description = input.value;
+    });
+  });
+
+  editor.querySelectorAll(".remove-service").forEach(button => {
+    button.addEventListener("click", () => {
+      services.splice(Number(button.dataset.index), 1);
+      renderServicesEditor();
+    });
+  });
+}
+
+async function saveServices() {
+  try {
+    const files = document.querySelectorAll(".service-image");
+
+    for (const input of files) {
+      const index = Number(input.dataset.index);
+
+      if (input.files[0]) {
+        services[index].image_url =
+          await uploadImage(input.files[0], "services");
+      }
     }
 
-}
+    await supabaseClient
+      .from("services")
+      .delete()
+      .neq("id", 0);
 
+    const records = services
+      .filter(s => s.name?.trim())
+      .map((s, index) => ({
+        name: s.name.trim(),
+        description: s.description || "",
+        image_url: s.image_url || "",
+        sort_order: index
+      }));
 
-function clearFile(id) {
+    if (records.length) {
+      const { error } = await supabaseClient
+        .from("services")
+        .insert(records);
 
-    const input =
-        document.getElementById(id);
-
-    if (input) {
-        input.value = "";
+      if (error) throw error;
     }
 
+    await saveServicesFallback();
+
+    alert("Services saved.");
+    await loadServices();
+    renderServicesEditor();
+    updateDashboard();
+
+  } catch (error) {
+    alert("Error saving services: " + error.message);
+  }
 }
 
+async function saveServicesFallback() {
+  await supabaseClient
+    .from("glamsanity_settings")
+    .update({
+      services_offered: services.filter(s => s.name?.trim())
+    })
+    .eq("id", 1);
+}
 
-function showPreview(id, url) {
+function renderSettings() {
+  document.getElementById("companyIntroInput").value =
+    settings.company_introduction || "";
 
-    const image =
-        document.getElementById(id);
+  document.getElementById("companyMissionInput").value =
+    settings.mission || "";
 
-    if (!image) return;
+  document.getElementById("companyVisionInput").value =
+    settings.vision || "";
 
-    if (!url) {
+  const payment = settings.payment_information || {};
 
-        hidePreview(id);
+  document.getElementById("paymentMethodsInput").value =
+    payment.payment_methods || "";
 
-        return;
-    }
+  document.getElementById("paymentInstructionsInput").value =
+    payment.payment_instructions || "";
 
-    image.src = url;
+  document.getElementById("downPaymentInput").value =
+    payment.down_payment || "";
 
-    image.classList.remove(
-        "hidden"
+  document.getElementById("balanceScheduleInput").value =
+    payment.balance_schedule || "";
+
+  document.getElementById("confirmationProcedureInput").value =
+    payment.confirmation_procedure || "";
+
+  document.getElementById("paymentRemindersInput").value =
+    payment.payment_reminders || "";
+
+  renderUploadedImages(
+    "policyImagePreview",
+    policyImages
+  );
+
+  renderUploadedImages(
+    "paymentModeImagePreview",
+    paymentImages
+  );
+}
+
+async function saveCompany(event) {
+  event.preventDefault();
+
+  const record = {
+    company_introduction:
+      document.getElementById("companyIntroInput").value.trim(),
+
+    mission:
+      document.getElementById("companyMissionInput").value.trim(),
+
+    vision:
+      document.getElementById("companyVisionInput").value.trim()
+  };
+
+  const { error } = await supabaseClient
+    .from("glamsanity_settings")
+    .update(record)
+    .eq("id", 1);
+
+  if (error) {
+    alert("Error: " + error.message);
+    return;
+  }
+
+  Object.assign(settings, record);
+  alert("Company information saved.");
+}
+
+async function savePayment(event) {
+  event.preventDefault();
+
+  try {
+    const files =
+      document.getElementById("paymentModeImagesInput").files;
+
+    const newImages =
+      await uploadMultiple(files, "payment");
+
+    paymentImages = [
+      ...paymentImages,
+      ...newImages
+    ];
+
+    const paymentInformation = {
+      payment_methods:
+        document.getElementById("paymentMethodsInput").value.trim(),
+
+      payment_instructions:
+        document.getElementById("paymentInstructionsInput").value.trim(),
+
+      down_payment:
+        document.getElementById("downPaymentInput").value.trim(),
+
+      balance_schedule:
+        document.getElementById("balanceScheduleInput").value.trim(),
+
+      confirmation_procedure:
+        document.getElementById("confirmationProcedureInput").value.trim(),
+
+      payment_reminders:
+        document.getElementById("paymentRemindersInput").value.trim()
+    };
+
+    const { error } = await supabaseClient
+      .from("glamsanity_settings")
+      .update({
+        payment_information: paymentInformation,
+        payment_mode_images: paymentImages
+      })
+      .eq("id", 1);
+
+    if (error) throw error;
+
+    settings.payment_information = paymentInformation;
+    settings.payment_mode_images = paymentImages;
+
+    renderUploadedImages(
+      "paymentModeImagePreview",
+      paymentImages
     );
 
+    alert("Mode of payment saved.");
+
+  } catch (error) {
+    alert("Error saving payment information: " + error.message);
+  }
 }
 
+async function savePolicies(event) {
+  event.preventDefault();
 
-function hidePreview(id) {
+  try {
+    const files =
+      document.getElementById("policyImagesInput").files;
 
-    const image =
-        document.getElementById(id);
+    const newImages =
+      await uploadMultiple(files, "policies");
 
-    if (!image) return;
+    policyImages = [
+      ...policyImages,
+      ...newImages
+    ];
 
-    image.src = "";
+    const { error } = await supabaseClient
+      .from("glamsanity_settings")
+      .update({
+        rules_policy_images: policyImages
+      })
+      .eq("id", 1);
 
-    image.classList.add(
-        "hidden"
+    if (error) throw error;
+
+    settings.rules_policy_images = policyImages;
+
+    renderUploadedImages(
+      "policyImagePreview",
+      policyImages
     );
 
+    alert("Rules and policies saved.");
+
+  } catch (error) {
+    alert("Error saving policies: " + error.message);
+  }
 }
 
+function renderUploadedImages(elementId, images) {
+  const container = document.getElementById(elementId);
 
-function formatPrice(value) {
-
-    const number =
-        Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "0.00";
-    }
-
-    return number.toLocaleString(
-        "en-PH",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
-
+  container.innerHTML = images.map((url, index) => `
+    <div class="uploaded-image-wrapper">
+      <img src="${url}" alt="Uploaded image">
+      <button
+        type="button"
+        class="remove-image"
+        onclick="removeUploadedImage('${elementId}', ${index})">
+        ×
+      </button>
+    </div>
+  `).join("");
 }
 
+async function removeUploadedImage(elementId, index) {
+  if (elementId === "policyImagePreview") {
+    policyImages.splice(index, 1);
+
+    await supabaseClient
+      .from("glamsanity_settings")
+      .update({
+        rules_policy_images: policyImages
+      })
+      .eq("id", 1);
+
+    renderUploadedImages(elementId, policyImages);
+  }
+
+  if (elementId === "paymentModeImagePreview") {
+    paymentImages.splice(index, 1);
+
+    await supabaseClient
+      .from("glamsanity_settings")
+      .update({
+        payment_mode_images: paymentImages
+      })
+      .eq("id", 1);
+
+    renderUploadedImages(elementId, paymentImages);
+  }
+}
+
+function editProduct(id) {
+  const item = products.find(p => Number(p.id) === Number(id));
+  if (!item) return;
+
+  document.getElementById("productId").value = item.id;
+  document.getElementById("productName").value = item.name || "";
+  document.getElementById("productDescription").value = item.description || "";
+  document.getElementById("productCategory").value = item.category || "";
+  document.getElementById("productPrice").value = item.price || 0;
+  document.getElementById("productStock").value = item.stock || 0;
+  document.getElementById("productStockCheckedDate").value =
+    item.stock_checked_date || "";
+
+  if (item.image_url) {
+    const preview = document.getElementById("productImagePreview");
+    preview.src = item.image_url;
+    preview.style.display = "block";
+  }
+
+  openSection("products");
+}
+
+function editBundle(id) {
+  const item = bundles.find(b => Number(b.id) === Number(id));
+  if (!item) return;
+
+  document.getElementById("bundleId").value = item.id;
+  document.getElementById("bundleName").value = item.name || "";
+  document.getElementById("bundleDescription").value = item.description || "";
+  document.getElementById("bundlePrice").value = item.price || 0;
+  document.getElementById("bundleStock").value = item.stock || 0;
+  document.getElementById("bundleStockCheckedDate").value =
+    item.stock_checked_date || "";
+
+  if (item.image_url) {
+    const preview = document.getElementById("bundleImagePreview");
+    preview.src = item.image_url;
+    preview.style.display = "block";
+  }
+
+  openSection("bundles");
+}
+
+function editContainer(id) {
+  const item = containers.find(c => Number(c.id) === Number(id));
+  if (!item) return;
+
+  document.getElementById("containerId").value = item.id;
+  document.getElementById("containerName").value = item.name || "";
+  document.getElementById("containerDescription").value = item.description || "";
+  document.getElementById("containerPrice").value = item.price || 0;
+  document.getElementById("containerStock").value = item.stock || 0;
+  document.getElementById("containerStockCheckedDate").value =
+    item.stock_checked_date || "";
+  document.getElementById("containerLeadTime").value =
+    item.lead_time || "";
+  document.getElementById("containerSource").value =
+    item.source || "";
+
+  if (item.image_url) {
+    const preview = document.getElementById("containerImagePreview");
+    preview.src = item.image_url;
+    preview.style.display = "block";
+  }
+
+  openSection("containers");
+}
+
+async function deleteProduct(id) {
+  if (!confirm("Delete this product?")) return;
+
+  const { error } = await supabaseClient
+    .from("products")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadProducts();
+  renderProducts();
+  updateDashboard();
+}
+
+async function deleteBundle(id) {
+  if (!confirm("Delete this bundle?")) return;
+
+  const { error } = await supabaseClient
+    .from("bundles")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadBundles();
+  renderBundles();
+  updateDashboard();
+}
+
+async function deleteContainer(id) {
+  if (!confirm("Delete this container?")) return;
+
+  const { error } = await supabaseClient
+    .from("containers")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadContainers();
+  renderContainers();
+  updateDashboard();
+}
+
+function clearProductForm() {
+  document.getElementById("productForm").reset();
+  document.getElementById("productId").value = "";
+
+  const preview = document.getElementById("productImagePreview");
+  preview.src = "";
+  preview.style.display = "none";
+}
+
+function clearBundleForm() {
+  document.getElementById("bundleForm").reset();
+  document.getElementById("bundleId").value = "";
+
+  const preview = document.getElementById("bundleImagePreview");
+  preview.src = "";
+  preview.style.display = "none";
+}
+
+function clearContainerForm() {
+  document.getElementById("containerForm").reset();
+  document.getElementById("containerId").value = "";
+
+  const preview = document.getElementById("containerImagePreview");
+  preview.src = "";
+  preview.style.display = "none";
+}
+
+function openSection(id) {
+  document.querySelectorAll(".nav-button")
+    .forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.dataset.section === id
+      );
+    });
+
+  document.querySelectorAll(".admin-section")
+    .forEach(section => {
+      section.classList.toggle(
+        "active",
+        section.id === id
+      );
+    });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function updateDashboard() {
+  document.getElementById("productCount").textContent =
+    products.length;
+
+  document.getElementById("bundleCount").textContent =
+    bundles.length;
+
+  document.getElementById("containerCount").textContent =
+    containers.length;
+
+  document.getElementById("serviceCount").textContent =
+    services.length;
+}
+
+function placeholder(text) {
+  return `https://placehold.co/700x500/111111/D4AF37?text=${encodeURIComponent(text || "Glamsanity")}`;
+}
+
+function money(value) {
+  return Number(value || 0).toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
 
 function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-
-function escapeAttribute(value) {
-
-    return escapeHtml(value);
-
+function escapeAttr(value) {
+  return escapeHtml(value);
 }
-
-
-function showToast(
-    message,
-    type = "success"
-) {
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-    if (!toast) {
-
-        console.log(message);
-
-        return;
-    }
-
-    toast.textContent =
-        message;
-
-    toast.className =
-        `toast ${type} show`;
-
-    clearTimeout(
-        showToast.timer
-    );
-
-    showToast.timer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            3500
-        );
-
-}
-
-
-/* =========================================================
-   GLOBAL EXPORTS
-   ========================================================= */
-
-window.saveProduct = saveProduct;
-window.saveBundle = saveBundle;
-window.saveContainer = saveContainer;
-window.saveServices = saveServices;
-window.saveCompanySettings = saveCompanySettings;
-window.savePaymentInformation = savePaymentInformation;
-
-window.editProduct = editProduct;
-window.editBundle = editBundle;
-window.editContainer = editContainer;
-
-window.deleteProduct = deleteProduct;
-window.deleteBundle = deleteBundle;
-window.deleteContainer = deleteContainer;
-
-window.loadProducts = loadProducts;
-window.loadBundles = loadBundles;
-window.loadContainers = loadContainers;
-window.loadServices = loadServices;

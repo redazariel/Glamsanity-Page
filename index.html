@@ -1,255 +1,166 @@
 <!-- FILE 1: index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Glamsanity cosmetics, skincare, beauty products and packaging solutions.">
-    <title>Glamsanity | Beauty & Cosmetics</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glamsanity</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
 
 <header class="site-header">
-    <div class="logo">
-        GLAM<span>SANITY</span>
-    </div>
+  <div class="logo">GLAMSANITY</div>
 
-    <nav class="main-nav">
-        <a href="#home">Home</a>
-        <a href="#products">Products</a>
-        <a href="#bundles">Bundles</a>
-        <a href="#containers">Containers</a>
-        <a href="#about">About</a>
-        <button id="cartButton" class="cart-button" type="button">
-            Cart <span id="cartCount">0</span>
-        </button>
-        <button id="themeToggle" class="theme-button" type="button">
-            ☾
-        </button>
-    </nav>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#products">Products</a>
+    <a href="#bundles">Bundles</a>
+    <a href="#containers">Containers</a>
+    <a href="#services">Services</a>
+    <a href="#about">About</a>
+    <a href="#payment">Payment</a>
+  </nav>
+
+  <button id="themeToggle" class="theme-toggle">☾</button>
+  <button id="cartButton" class="cart-button">Cart (<span id="cartCount">0</span>)</button>
 </header>
 
 <main>
 
-    <section id="home" class="hero-section">
-        <div class="hero-content">
-            <p class="eyebrow">BEAUTY • QUALITY • ELEGANCE</p>
+<section id="home" class="hero">
+  <div>
+    <p class="eyebrow">BEAUTY • QUALITY • ELEGANCE</p>
+    <h1>Welcome to <span>Glamsanity</span></h1>
+    <p>Your trusted source for beauty products, bundles, containers, and beauty services.</p>
+    <a href="#products" class="gold-button">Shop Now</a>
+  </div>
+</section>
 
-            <h1>
-                Elevate Your
-                <span>Beauty</span>
-            </h1>
+<section class="company-preview">
+  <h2 id="publicCompanyTitle">Glamsanity</h2>
+  <p id="companyIntroduction">Loading company information...</p>
 
-            <p>
-                Discover premium beauty products, innovative packaging,
-                and professional cosmetic solutions from Glamsanity.
-            </p>
+  <div class="mission-grid">
+    <div>
+      <h3>Mission</h3>
+      <p id="companyMission"></p>
+    </div>
+    <div>
+      <h3>Vision</h3>
+      <p id="companyVision"></p>
+    </div>
+  </div>
+</section>
 
-            <a href="#products" class="gold-button">
-                Explore Products
-            </a>
-        </div>
-    </section>
+<section id="products" class="shop-section">
+  <div class="section-heading">
+    <p class="eyebrow">SHOP</p>
+    <h2>Products</h2>
+  </div>
 
+  <div class="filters">
+    <input id="searchInput" type="search" placeholder="Search products...">
+    <select id="categoryFilter">
+      <option value="all">All Categories</option>
+    </select>
+  </div>
 
-    <section id="products" class="catalog-section">
-        <div class="section-heading">
-            <p class="eyebrow">OUR COLLECTION</p>
-            <h2>Products</h2>
-            <div class="gold-line"></div>
-        </div>
+  <div id="productsGrid" class="product-grid"></div>
+</section>
 
-        <div id="productsGrid" class="catalog-grid">
-            <div class="loading">Loading products...</div>
-        </div>
-    </section>
+<section id="bundles" class="shop-section">
+  <div class="section-heading">
+    <p class="eyebrow">VALUE SETS</p>
+    <h2>Bundles</h2>
+  </div>
+  <div id="bundlesGrid" class="product-grid"></div>
+</section>
 
+<section id="containers" class="shop-section">
+  <div class="section-heading">
+    <p class="eyebrow">PRE-ORDER</p>
+    <h2>Pre-Order Containers</h2>
+  </div>
+  <div id="containersGrid" class="product-grid"></div>
+</section>
 
-    <section id="bundles" class="catalog-section alternate-section">
-        <div class="section-heading">
-            <p class="eyebrow">CURATED FOR YOU</p>
-            <h2>Bundles</h2>
-            <div class="gold-line"></div>
-        </div>
+<section id="services" class="shop-section">
+  <div class="section-heading">
+    <p class="eyebrow">WHAT WE OFFER</p>
+    <h2>Services Offered</h2>
+  </div>
+  <div id="servicesGrid" class="services-grid"></div>
+</section>
 
-        <div id="bundlesGrid" class="catalog-grid">
-            <div class="loading">Loading bundles...</div>
-        </div>
-    </section>
+<section id="about" class="information-section">
+  <div class="section-heading">
+    <p class="eyebrow">ABOUT US</p>
+    <h2>Company Information</h2>
+  </div>
 
+  <div class="info-card">
+    <h3>Introduction</h3>
+    <p id="aboutIntroduction"></p>
+  </div>
 
-    <section id="containers" class="catalog-section">
-        <div class="section-heading">
-            <p class="eyebrow">PACKAGING SOLUTIONS</p>
-            <h2>Containers</h2>
-            <div class="gold-line"></div>
-        </div>
+  <div class="mission-grid">
+    <div class="info-card">
+      <h3>Mission</h3>
+      <p id="aboutMission"></p>
+    </div>
+    <div class="info-card">
+      <h3>Vision</h3>
+      <p id="aboutVision"></p>
+    </div>
+  </div>
+</section>
 
-        <div id="containersGrid" class="catalog-grid">
-            <div class="loading">Loading containers...</div>
-        </div>
-    </section>
+<section id="payment" class="information-section">
+  <div class="section-heading">
+    <p class="eyebrow">ORDERS & PAYMENT</p>
+    <h2>Rules, Policies & Mode of Payment</h2>
+  </div>
 
+  <div id="paymentInformation" class="payment-information"></div>
 
-    <section id="about" class="about-section">
+  <div class="policy-images">
+    <h3>Rules & Policies</h3>
+    <div id="policyImagesGrid" class="document-image-grid"></div>
+  </div>
 
-        <div class="section-heading">
-            <p class="eyebrow">GET TO KNOW US</p>
-            <h2>About Glamsanity</h2>
-            <div class="gold-line"></div>
-        </div>
-
-        <div class="company-info">
-
-            <div class="info-card">
-                <span class="info-number">01</span>
-                <h3>Introduction</h3>
-                <p id="companyIntro">
-                    Welcome to Glamsanity.
-                </p>
-            </div>
-
-            <div class="info-card">
-                <span class="info-number">02</span>
-                <h3>Our Mission</h3>
-                <p id="companyMission">
-                    Our mission information will be available soon.
-                </p>
-            </div>
-
-            <div class="info-card">
-                <span class="info-number">03</span>
-                <h3>Our Vision</h3>
-                <p id="companyVision">
-                    Our vision information will be available soon.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="services-wrapper">
-
-            <div class="section-heading small-heading">
-                <p class="eyebrow">WHAT WE OFFER</p>
-                <h2>Services Offered</h2>
-                <div class="gold-line"></div>
-            </div>
-
-            <div id="servicesOfferedGrid" class="services-grid">
-                <div class="loading">Loading services...</div>
-            </div>
-
-        </div>
-
-
-        <div class="payment-section">
-
-            <div class="section-heading small-heading">
-                <p class="eyebrow">ORDER INFORMATION</p>
-                <h2>Payment Information</h2>
-                <div class="gold-line"></div>
-            </div>
-
-            <div class="payment-card">
-
-                <div class="payment-row">
-                    <h3>Accepted Payment Methods</h3>
-                    <p id="paymentMethods">
-                        Payment information will be available soon.
-                    </p>
-                </div>
-
-                <div class="payment-row">
-                    <h3>Payment Instructions</h3>
-                    <p id="paymentInstructions"></p>
-                </div>
-
-                <div class="payment-row">
-                    <h3>Required Down Payment</h3>
-                    <p id="paymentDownPayment"></p>
-                </div>
-
-                <div class="payment-row">
-                    <h3>Balance / Payment Schedule</h3>
-                    <p id="paymentSchedule"></p>
-                </div>
-
-                <div class="payment-row">
-                    <h3>Payment Confirmation</h3>
-                    <p id="paymentConfirmation"></p>
-                </div>
-
-                <div class="payment-row">
-                    <h3>Important Reminders</h3>
-                    <p id="paymentReminders"></p>
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
+  <div class="policy-images">
+    <h3>Mode of Payment</h3>
+    <div id="paymentImagesGrid" class="document-image-grid"></div>
+  </div>
+</section>
 
 </main>
 
+<div id="cartPanel" class="cart-panel">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button id="closeCart">×</button>
+  </div>
 
-<footer class="site-footer">
+  <div id="cartItems"></div>
 
-    <div class="footer-logo">
-        GLAM<span>SANITY</span>
-    </div>
-
-    <p>
-        Beauty, cosmetics, packaging, and product solutions.
-    </p>
-
-    <p class="copyright">
-        © <span id="currentYear"></span> Glamsanity. All rights reserved.
-    </p>
-
-</footer>
-
-
-<div id="cartModal" class="modal hidden">
-
-    <div class="modal-content">
-
-        <button id="closeCart" class="modal-close" type="button">
-            ×
-        </button>
-
-        <h2>Your Cart</h2>
-
-        <div id="cartItems"></div>
-
-        <div class="cart-total">
-            <span>Total</span>
-            <strong id="cartTotal">₱0.00</strong>
-        </div>
-
-        <button id="clearCart" class="secondary-button" type="button">
-            Clear Cart
-        </button>
-
-    </div>
-
+  <div class="cart-footer">
+    <strong>Total: ₱<span id="cartTotal">0.00</span></strong>
+    <button id="copyOrderButton" class="gold-button">Copy Order Summary</button>
+  </div>
 </div>
 
+<div id="imageModal" class="image-modal">
+  <button id="closeImageModal">×</button>
+  <img id="modalImage" src="" alt="">
+</div>
 
-<div id="toast" class="toast"></div>
+<footer>
+  <p>© <span id="year"></span> Glamsanity. All rights reserved and Created by A.C.E</p>
+</footer>
 
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="catalog.js"></script>
-
 </body>
 </html>
