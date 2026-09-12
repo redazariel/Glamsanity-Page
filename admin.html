@@ -1,3 +1,5 @@
+<!-- FILE 4: admin.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,953 +12,699 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Glamsanity Admin</title>
+    <title>Glamsanity | Admin Dashboard</title>
 
     <link
-        rel="stylesheet"
-        href="./admin.css"
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
     >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="admin.css">
 
 </head>
 
 
 <body>
 
+<div class="admin-layout">
 
-<div
-    id="loginSection"
-    class="login-section"
->
-
-    <div class="login-card">
-
-        <h1>
-            GLAMSANITY
-        </h1>
-
-        <p>
-            Admin Panel
-        </p>
-
-
-        <form id="loginForm">
-
-            <input
-                type="email"
-                id="loginEmail"
-                placeholder="Email"
-                required
-            >
-
-
-            <input
-                type="password"
-                id="loginPassword"
-                placeholder="Password"
-                required
-            >
-
-
-            <button
-                type="submit"
-            >
-                Login
-            </button>
-
-
-            <p
-                id="loginMessage"
-                class="login-message"
-            ></p>
-
-        </form>
-
-    </div>
-
-</div>
-
-
-
-<div
-    id="adminApp"
-    class="admin-container hidden"
->
-
-
-    <!-- ======================================================
-         SIDEBAR
-    ======================================================= -->
 
     <aside class="sidebar">
 
-        <div class="sidebar-logo">
-
-            <h1>
-                GLAMSANITY
-            </h1>
-
-            <p>
-                Admin Panel
-            </p>
-
+        <div class="admin-logo">
+            GLAM<span>SANITY</span>
         </div>
 
+        <p class="admin-label">
+            ADMIN PANEL
+        </p>
 
         <nav>
 
             <button
                 class="nav-button active"
-                onclick="showSection('dashboard')"
+                data-section="dashboard"
             >
                 Dashboard
             </button>
 
-
             <button
                 class="nav-button"
-                onclick="showSection('products')"
+                data-section="products"
             >
                 Products
             </button>
 
-
             <button
                 class="nav-button"
-                onclick="showSection('containers')"
-            >
-                Containers
-            </button>
-
-
-            <button
-                class="nav-button"
-                onclick="showSection('bundles')"
+                data-section="bundles"
             >
                 Bundles
             </button>
 
+            <button
+                class="nav-button"
+                data-section="containers"
+            >
+                Containers
+            </button>
 
             <button
                 class="nav-button"
-                onclick="showSection('settings')"
+                data-section="services"
             >
-                Settings
+                Services
             </button>
 
+            <button
+                class="nav-button"
+                data-section="settings"
+            >
+                Company Information
+            </button>
 
             <button
-                id="logoutButton"
-                class="nav-button logout-button"
+                class="nav-button"
+                data-section="payment"
             >
-                Logout
+                Payment Information
             </button>
 
         </nav>
 
+
+        <button
+            id="themeToggle"
+            class="sidebar-theme"
+            type="button"
+        >
+            ☾ Light Mode
+        </button>
+
     </aside>
 
 
-
-    <!-- ======================================================
-         MAIN
-    ======================================================= -->
-
-    <main class="main-content">
+    <main class="admin-main">
 
 
-        <!-- ==================================================
-             DASHBOARD
-        =================================================== -->
+        <header class="admin-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    GLAMSANITY
+                </p>
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+            </div>
+
+        </header>
+
+
+        <!-- DASHBOARD -->
 
         <section
             id="dashboard"
-            class="page"
+            class="admin-section active"
         >
 
-            <div class="page-header">
-
-                <h2>
-                    Dashboard
-                </h2>
-
-                <p>
-                    Welcome to the Glamsanity Admin Panel.
-                </p>
-
-            </div>
-
-
-            <div class="stats">
-
+            <div class="stats-grid">
 
                 <div class="stat-card">
-
-                    <h3 id="totalProducts">
-                        0
-                    </h3>
-
-                    <p>
-                        Products
-                    </p>
-
+                    <span>Products</span>
+                    <strong id="productCount">0</strong>
                 </div>
-
 
                 <div class="stat-card">
-
-                    <h3 id="totalContainers">
-                        0
-                    </h3>
-
-                    <p>
-                        Containers
-                    </p>
-
+                    <span>Bundles</span>
+                    <strong id="bundleCount">0</strong>
                 </div>
-
 
                 <div class="stat-card">
-
-                    <h3 id="totalBundles">
-                        0
-                    </h3>
-
-                    <p>
-                        Bundles
-                    </p>
-
+                    <span>Containers</span>
+                    <strong id="containerCount">0</strong>
                 </div>
 
-
-            </div>
-
-
-            <div class="admin-section">
-
-                <p id="statusText">
-                    Connecting to Supabase...
-                </p>
+                <div class="stat-card">
+                    <span>Services</span>
+                    <strong id="serviceCount">0</strong>
+                </div>
 
             </div>
 
         </section>
 
 
-
-        <!-- ==================================================
-             PRODUCTS
-        =================================================== -->
+        <!-- PRODUCTS -->
 
         <section
             id="products"
-            class="page hidden"
+            class="admin-section"
         >
 
-            <div class="page-header">
-
-                <h2>
-                    Products
-                </h2>
-
-                <p>
-                    Add and manage your products.
-                </p>
-
+            <div class="section-title">
+                <h2>Products</h2>
             </div>
 
-
-            <div class="admin-section">
-
-                <h3>
-                    Add Product
-                </h3>
-
+            <form
+                id="productForm"
+                class="admin-form"
+            >
 
                 <input
-                    id="productName"
-                    placeholder="Product Name"
+                    type="hidden"
+                    id="productId"
                 >
 
+                <label>
+                    Product Name
 
-                <select id="productCategory">
+                    <input
+                        type="text"
+                        id="productName"
+                        required
+                    >
+                </label>
 
-                    <option value="Skincare">
-                        Skincare
-                    </option>
+                <label>
+                    Description
 
-                    <option value="Soap">
-                        Soap
-                    </option>
+                    <textarea
+                        id="productDescription"
+                        rows="4"
+                    ></textarea>
+                </label>
 
-                    <option value="Lip Products">
-                        Lip Products
-                    </option>
+                <label>
+                    Category
 
-                    <option value="Personal Care">
-                        Personal Care
-                    </option>
+                    <input
+                        type="text"
+                        id="productCategory"
+                        placeholder="Example: Makeup"
+                    >
+                </label>
 
-                    <option value="Cosmetics">
-                        Cosmetics
-                    </option>
+                <label>
+                    Price
 
-                </select>
+                    <input
+                        type="number"
+                        id="productPrice"
+                        min="0"
+                        step="0.01"
+                    >
+                </label>
 
+                <label>
+                    Stock
 
-                <textarea
-                    id="productDescription"
-                    placeholder="Product Description"
-                ></textarea>
-
-
-                <input
-                    id="productIngredients"
-                    placeholder="Key Ingredients"
-                >
-
-
-                <input
-                    id="productBenefits"
-                    placeholder="Benefits"
-                >
-
-
-                <input
-                    id="productSize"
-                    placeholder="Size / Weight"
-                >
-
-
-                <input
-                    id="productPackaging"
-                    placeholder="Recommended Packaging"
-                >
-
-
-                <input
-                    id="productMOQ"
-                    placeholder="MOQ"
-                >
-
-
-                <input
-                    id="productPrice"
-                    placeholder="Price"
-                    type="number"
-                    step="0.01"
-                >
-
+                    <input
+                        type="number"
+                        id="productStock"
+                        min="0"
+                    >
+                </label>
 
                 <label>
                     Product Image
+
+                    <input
+                        type="file"
+                        id="productImageFile"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                    >
                 </label>
 
-
-                <input
-                    type="file"
-                    id="productImage"
-                    accept="image/*"
-                >
-
-
-                <button
-                    onclick="addProduct()"
-                >
-                    Add Product
-                </button>
-
-            </div>
-
-
-            <div class="admin-section">
-
-                <h3>
-                    Existing Products
-                </h3>
-
-                <div id="productList">
-                    Loading products...
+                <div class="image-preview-box">
+                    <img
+                        id="productImagePreview"
+                        class="image-preview hidden"
+                        alt="Product preview"
+                    >
                 </div>
 
-            </div>
+                <div class="form-buttons">
+
+                    <button
+                        type="submit"
+                        class="gold-button"
+                    >
+                        Save Product
+                    </button>
+
+                    <button
+                        type="button"
+                        id="cancelProduct"
+                        class="secondary-button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div
+                id="adminProductsList"
+                class="admin-items"
+            ></div>
 
         </section>
 
 
-
-        <!-- ==================================================
-             CONTAINERS
-        =================================================== -->
-
-        <section
-            id="containers"
-            class="page hidden"
-        >
-
-            <div class="page-header">
-
-                <h2>
-                    Containers
-                </h2>
-
-                <p>
-                    Manage available packaging containers.
-                </p>
-
-            </div>
-
-
-            <div class="admin-section">
-
-                <h3>
-                    Add Container
-                </h3>
-
-
-                <input
-                    id="containerName"
-                    placeholder="Container Name"
-                >
-
-
-                <input
-                    id="containerSize"
-                    placeholder="Size"
-                >
-
-
-                <input
-                    id="containerColor"
-                    placeholder="Color"
-                >
-
-
-                <input
-                    id="containerQty"
-                    placeholder="Quantity"
-                >
-
-
-                <select
-                    id="containerAvailability"
-                >
-
-                    <option value="available">
-                        Available
-                    </option>
-
-                    <option value="preorder">
-                        Preorder
-                    </option>
-
-                </select>
-
-
-                <button
-                    onclick="addContainer()"
-                >
-                    Add Container
-                </button>
-
-            </div>
-
-
-            <div class="admin-section">
-
-                <h3>
-                    Existing Containers
-                </h3>
-
-                <div id="containerList">
-                    Loading containers...
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ==================================================
-             BUNDLES
-        =================================================== -->
+        <!-- BUNDLES -->
 
         <section
             id="bundles"
-            class="page hidden"
+            class="admin-section"
         >
 
-            <div class="page-header">
-
-                <h2>
-                    Bundles
-                </h2>
-
-                <p>
-                    Manage product bundles.
-                </p>
-
+            <div class="section-title">
+                <h2>Bundles</h2>
             </div>
 
-
-            <div class="admin-section">
-
-                <h3>
-                    Add Bundle
-                </h3>
-
+            <form
+                id="bundleForm"
+                class="admin-form"
+            >
 
                 <input
-                    id="bundleName"
-                    placeholder="Bundle Name"
+                    type="hidden"
+                    id="bundleId"
                 >
 
+                <label>
+                    Bundle Name
 
-                <input
-                    id="bundlePrice"
-                    placeholder="Price"
-                    type="number"
-                    step="0.01"
-                >
+                    <input
+                        type="text"
+                        id="bundleName"
+                        required
+                    >
+                </label>
 
+                <label>
+                    Description
 
-                <textarea
-                    id="bundleDetails"
-                    placeholder="Bundle Details"
-                ></textarea>
+                    <textarea
+                        id="bundleDescription"
+                        rows="4"
+                    ></textarea>
+                </label>
 
+                <label>
+                    Price
+
+                    <input
+                        type="number"
+                        id="bundlePrice"
+                        min="0"
+                        step="0.01"
+                    >
+                </label>
+
+                <label>
+                    Stock
+
+                    <input
+                        type="number"
+                        id="bundleStock"
+                        min="0"
+                    >
+                </label>
 
                 <label>
                     Bundle Image
+
+                    <input
+                        type="file"
+                        id="bundleImageFile"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                    >
                 </label>
 
-
-                <input
-                    type="file"
-                    id="bundleImage"
-                    accept="image/*"
-                >
-
-
-                <button
-                    onclick="addBundle()"
-                >
-                    Add Bundle
-                </button>
-
-            </div>
-
-
-            <div class="admin-section">
-
-                <h3>
-                    Existing Bundles
-                </h3>
-
-                <div id="bundleList">
-                    Loading bundles...
+                <div class="image-preview-box">
+                    <img
+                        id="bundleImagePreview"
+                        class="image-preview hidden"
+                        alt="Bundle preview"
+                    >
                 </div>
 
-            </div>
+                <div class="form-buttons">
+
+                    <button
+                        type="submit"
+                        class="gold-button"
+                    >
+                        Save Bundle
+                    </button>
+
+                    <button
+                        type="button"
+                        id="cancelBundle"
+                        class="secondary-button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div
+                id="adminBundlesList"
+                class="admin-items"
+            ></div>
 
         </section>
 
 
+        <!-- CONTAINERS -->
 
-        <!-- ==================================================
-             SETTINGS
-        =================================================== -->
+        <section
+            id="containers"
+            class="admin-section"
+        >
+
+            <div class="section-title">
+                <h2>Containers</h2>
+            </div>
+
+            <form
+                id="containerForm"
+                class="admin-form"
+            >
+
+                <input
+                    type="hidden"
+                    id="containerId"
+                >
+
+                <label>
+                    Container Name
+
+                    <input
+                        type="text"
+                        id="containerName"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Description
+
+                    <textarea
+                        id="containerDescription"
+                        rows="4"
+                    ></textarea>
+                </label>
+
+                <label>
+                    Price
+
+                    <input
+                        type="number"
+                        id="containerPrice"
+                        min="0"
+                        step="0.01"
+                    >
+                </label>
+
+                <label>
+                    Stock
+
+                    <input
+                        type="number"
+                        id="containerStock"
+                        min="0"
+                    >
+                </label>
+
+                <label>
+                    Container Image
+
+                    <input
+                        type="file"
+                        id="containerImageFile"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                    >
+                </label>
+
+                <div class="image-preview-box">
+                    <img
+                        id="containerImagePreview"
+                        class="image-preview hidden"
+                        alt="Container preview"
+                    >
+                </div>
+
+                <label>
+                    Source
+
+                    <input
+                        type="text"
+                        id="containerSource"
+                        placeholder="Enter container source"
+                    >
+
+                    <small>
+                        This information is visible only in the admin dashboard.
+                    </small>
+                </label>
+
+                <div class="form-buttons">
+
+                    <button
+                        type="submit"
+                        class="gold-button"
+                    >
+                        Save Container
+                    </button>
+
+                    <button
+                        type="button"
+                        id="cancelContainer"
+                        class="secondary-button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div
+                id="adminContainersList"
+                class="admin-items"
+            ></div>
+
+        </section>
+
+
+        <!-- SERVICES -->
+
+        <section
+            id="services"
+            class="admin-section"
+        >
+
+            <div class="section-title">
+                <h2>Services Offered</h2>
+            </div>
+
+            <div
+                id="servicesEditor"
+                class="services-editor"
+            ></div>
+
+            <button
+                id="saveServices"
+                type="button"
+                class="gold-button"
+            >
+                Save Services
+            </button>
+
+        </section>
+
+
+        <!-- COMPANY INFORMATION -->
 
         <section
             id="settings"
-            class="page hidden"
+            class="admin-section"
         >
 
+            <div class="section-title">
+                <h2>Company Information</h2>
+            </div>
 
-            <!-- =============================================
-                 COMPANY INFORMATION
-            ============================================== -->
+            <form
+                id="companyForm"
+                class="admin-form"
+            >
 
-            <div class="admin-section">
-
-                <h2>
-                    Company Information
-                </h2>
-
-
-                <label
-                    for="companyIntro"
-                >
+                <label>
                     Company Introduction
+
+                    <textarea
+                        id="companyIntroInput"
+                        rows="6"
+                        placeholder="Write your company introduction..."
+                    ></textarea>
                 </label>
 
+                <label>
+                    Mission
 
-                <textarea
-                    id="companyIntro"
-                    placeholder="Write your company introduction..."
-                ></textarea>
+                    <textarea
+                        id="companyMissionInput"
+                        rows="6"
+                        placeholder="Write your company mission..."
+                    ></textarea>
+                </label>
 
+                <label>
+                    Vision
+
+                    <textarea
+                        id="companyVisionInput"
+                        rows="6"
+                        placeholder="Write your company vision..."
+                    ></textarea>
+                </label>
 
                 <button
-                    onclick="saveCompanySettings()"
+                    type="submit"
+                    class="gold-button"
                 >
                     Save Company Information
                 </button>
 
+            </form>
+
+        </section>
+
+
+        <!-- PAYMENT INFORMATION -->
+
+        <section
+            id="payment"
+            class="admin-section"
+        >
+
+            <div class="section-title">
+                <h2>Payment Information</h2>
             </div>
 
-
-
-            <!-- =============================================
-                 PAYMENT INFORMATION
-            ============================================== -->
-
-            <div
-                class="admin-section payment-admin"
+            <form
+                id="paymentForm"
+                class="admin-form"
             >
 
-                <h2>
-                    Payment Information
-                </h2>
-
-
-                <p class="help-text">
-
-                    Manage the payment information
-                    displayed to customers.
-
-                </p>
-
-
-
-                <!-- =========================================
-                     1. ACCEPTED PAYMENT METHODS
-                ========================================== -->
-
-                <div class="payment-admin-card">
-
-                    <h3>
-                        1. Accepted Payment Methods
-                    </h3>
-
-
-                    <p class="help-text">
-
-                        Select all payment methods
-                        currently accepted by Glamsanity.
-
-                    </p>
-
-
-                    <div
-                        class="payment-method-checkboxes"
-                    >
-
-
-                        <label
-                            class="payment-checkbox"
-                        >
-
-                            <input
-                                type="checkbox"
-                                id="paymentGCash"
-                                value="GCash"
-                            >
-
-                            <span>
-                                GCash
-                            </span>
-
-                        </label>
-
-
-                        <label
-                            class="payment-checkbox"
-                        >
-
-                            <input
-                                type="checkbox"
-                                id="paymentMaya"
-                                value="Maya"
-                            >
-
-                            <span>
-                                Maya
-                            </span>
-
-                        </label>
-
-
-                        <label
-                            class="payment-checkbox"
-                        >
-
-                            <input
-                                type="checkbox"
-                                id="paymentBank"
-                                value="Bank Transfer"
-                            >
-
-                            <span>
-                                Bank Transfer
-                            </span>
-
-                        </label>
-
-
-                        <label
-                            class="payment-checkbox"
-                        >
-
-                            <input
-                                type="checkbox"
-                                id="paymentCOD"
-                                value="Cash on Delivery"
-                            >
-
-                            <span>
-                                Cash on Delivery
-                            </span>
-
-                        </label>
-
-
-                        <label
-                            class="payment-checkbox"
-                        >
-
-                            <input
-                                type="checkbox"
-                                id="paymentOther"
-                                value="Other"
-                            >
-
-                            <span>
-                                Other
-                            </span>
-
-                        </label>
-
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- =========================================
-                     2. PAYMENT INSTRUCTIONS
-                ========================================== -->
-
-                <div
-                    class="payment-admin-card"
-                >
-
-                    <h3>
-                        2. Payment Instructions
-                    </h3>
-
-
-                    <label
-                        for="paymentInstructions"
-                    >
-                        Instructions for Customers
-                    </label>
-
+                <label>
+                    Accepted Payment Methods
 
                     <textarea
-                        id="paymentInstructions"
-                        placeholder="Example:
-
-1. Choose one of the accepted payment methods.
-2. Follow the payment details provided by Glamsanity.
-3. Pay the required amount.
-4. Send your proof of payment.
-5. Wait for payment verification."
+                        id="paymentMethodsInput"
+                        rows="4"
+                        placeholder="Example: GCash, Maya, Bank Transfer..."
                     ></textarea>
+                </label>
 
-                </div>
-
-
-
-                <!-- =========================================
-                     3. REQUIRED DOWN PAYMENT
-                ========================================== -->
-
-                <div
-                    class="payment-admin-card"
-                >
-
-                    <h3>
-                        3. Required Down Payment
-                    </h3>
-
-
-                    <label
-                        for="requiredDownPayment"
-                    >
-                        Down Payment Requirement
-                    </label>
-
+                <label>
+                    Payment Instructions
 
                     <textarea
-                        id="requiredDownPayment"
-                        placeholder="Example:
-
-A 50% down payment is required before production begins."
+                        id="paymentInstructionsInput"
+                        rows="5"
+                        placeholder="Enter payment instructions..."
                     ></textarea>
+                </label>
 
-                </div>
-
-
-
-                <!-- =========================================
-                     4. BALANCE / PAYMENT SCHEDULE
-                ========================================== -->
-
-                <div
-                    class="payment-admin-card"
-                >
-
-                    <h3>
-                        4. Balance / Payment Schedule
-                    </h3>
-
-
-                    <label
-                        for="balancePaymentSchedule"
-                    >
-                        Balance and Payment Schedule
-                    </label>
-
+                <label>
+                    Required Down Payment
 
                     <textarea
-                        id="balancePaymentSchedule"
-                        placeholder="Example:
-
-The remaining 50% balance is due before product release or delivery.
-
-For approved installment arrangements, the schedule will be indicated in the official quotation or agreement."
+                        id="paymentDownPaymentInput"
+                        rows="4"
+                        placeholder="Example: 50% down payment is required..."
                     ></textarea>
+                </label>
 
-                </div>
-
-
-
-                <!-- =========================================
-                     5. PAYMENT CONFIRMATION
-                ========================================== -->
-
-                <div
-                    class="payment-admin-card"
-                >
-
-                    <h3>
-                        5. Payment Confirmation Procedure
-                    </h3>
-
-
-                    <label
-                        for="paymentConfirmationProcedures"
-                    >
-                        Payment Confirmation Procedure
-                    </label>
-
+                <label>
+                    Balance / Payment Schedule
 
                     <textarea
-                        id="paymentConfirmationProcedures"
-                        placeholder="Example:
-
-After completing payment, send:
-
-• Screenshot or photo of the payment receipt
-• Customer name
-• Company / brand name
-• Invoice or quotation number
-• Amount paid
-• Date of payment
-
-Payment will be considered confirmed only after verification."
+                        id="paymentScheduleInput"
+                        rows="5"
+                        placeholder="Enter balance and payment schedule..."
                     ></textarea>
+                </label>
 
-                </div>
-
-
-
-                <!-- =========================================
-                     6. IMPORTANT REMINDERS
-                ========================================== -->
-
-                <div
-                    class="payment-admin-card"
-                >
-
-                    <h3>
-                        6. Important Payment Reminders
-                    </h3>
-
-
-                    <label
-                        for="importantPaymentReminders"
-                    >
-                        Important Payment Reminders
-                    </label>
-
+                <label>
+                    Payment Confirmation Procedure
 
                     <textarea
-                        id="importantPaymentReminders"
-                        placeholder="Example:
-
-• Only use payment accounts officially provided by Glamsanity.
-• Verify payment details before sending money.
-• Keep your payment receipt.
-• Do not send payment to unauthorized individuals.
-• Payments are subject to verification.
-• Orders or production schedules may not proceed until payment is confirmed."
+                        id="paymentConfirmationInput"
+                        rows="5"
+                        placeholder="Explain how customers should confirm payments..."
                     ></textarea>
+                </label>
 
-                </div>
+                <label>
+                    Important Payment Reminders
 
-
-
-                <!-- =========================================
-                     SAVE
-                ========================================== -->
+                    <textarea
+                        id="paymentRemindersInput"
+                        rows="5"
+                        placeholder="Enter important reminders..."
+                    ></textarea>
+                </label>
 
                 <button
-                    onclick="savePaymentInformation()"
-                    class="save-payment-button"
+                    type="submit"
+                    class="gold-button"
                 >
                     Save Payment Information
                 </button>
 
-
-            </div>
+            </form>
 
         </section>
-
 
     </main>
 
 </div>
 
 
-
-<!-- ==========================================================
-     SUPABASE
-=========================================================== -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
+<div
+    id="toast"
+    class="toast"
+></div>
 
 
-<script src="./sql-config.js"></script>
-
-
-<script src="./admin.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin.js"></script>
 
 </body>
-
 </html>

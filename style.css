@@ -1,1019 +1,851 @@
-/* =========================================================
-   GLAMSANITY — BLACK & GOLD LUXURY CATALOG
-   ========================================================= */
+/* FILE 2: style.css */
 
 :root {
     --black: #080808;
     --black-soft: #111111;
-    --black-card: #151515;
-    --black-light: #1d1d1d;
+    --card: #171717;
 
-    --gold: #c9a227;
-    --gold-light: #e5c766;
-    --gold-dark: #92751a;
+    --gold: #d4af37;
+    --gold-light: #f3d675;
+    --gold-dark: #9d7b18;
 
-    --white: #f8f6f0;
-    --cream: #eee9dc;
-    --muted: #aaa59a;
+    --white: #ffffff;
+    --gray: #aaaaaa;
 
-    --border: rgba(201, 162, 39, 0.30);
+    --border: rgba(212,175,55,0.25);
+    --background: var(--black);
+    --text: var(--white);
+    --secondary-text: var(--gray);
 
-    --shadow:
-        0 15px 45px rgba(0, 0, 0, 0.45);
-
-    --gold-shadow:
-        0 8px 30px rgba(201, 162, 39, 0.12);
-
-    --radius: 4px;
+    --transition: .3s ease;
+    --radius: 16px;
 }
 
-/* =========================================================
-   RESET
-   ========================================================= */
-
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 90px;
+    scroll-padding-top: 100px;
 }
 
 body {
-    background:
-        radial-gradient(
-            circle at top right,
-            rgba(201, 162, 39, 0.06),
-            transparent 35%
-        ),
-        var(--black);
-
-    color: var(--white);
-
-    font-family:
-        "DM Sans",
-        Arial,
-        sans-serif;
-
-    line-height: 1.5;
-    font-size: 14px;
+    font-family: "Montserrat", sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+    transition: background .3s ease, color .3s ease;
 }
 
-/* =========================================================
-   SELECTION
-   ========================================================= */
-
-::selection {
-    background: var(--gold);
-    color: var(--black);
+body.light-theme {
+    --background: #f7f4ed;
+    --black-soft: #eee9dd;
+    --card: #ffffff;
+    --text: #151515;
+    --secondary-text: #666666;
+    --border: rgba(150,110,15,.25);
 }
 
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-header {
-    background:
-        linear-gradient(
-            135deg,
-            #050505,
-            #15120b
-        );
-
-    border-bottom: 1px solid var(--border);
-
-    padding: 42px 25px 30px;
-
-    text-align: center;
-
-    position: relative;
+button,
+input,
+textarea {
+    font-family: inherit;
 }
 
-header::after {
-    content: "";
-    display: block;
-
-    width: 70px;
-    height: 2px;
-
-    background: var(--gold);
-
-    margin: 18px auto 0;
+button {
+    cursor: pointer;
 }
 
-header h1 {
-    font-family:
-        "Playfair Display",
-        Georgia,
-        serif;
 
-    font-size: clamp(38px, 6vw, 68px);
+/* HEADER */
 
-    letter-spacing: 8px;
-
-    color: var(--gold-light);
-
-    font-weight: 600;
-
-    line-height: 1;
-}
-
-header p {
-    margin-top: 12px;
-
-    color: var(--muted);
-
-    font-size: 12px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 3px;
-}
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-nav {
+.site-header {
     position: sticky;
     top: 0;
     z-index: 1000;
 
+    min-height: 76px;
+    padding: 15px 6%;
+
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
+    gap: 20px;
 
-    gap: 0;
-
-    background: rgba(8, 8, 8, 0.96);
-
+    background: rgba(8,8,8,.96);
     border-bottom: 1px solid var(--border);
-
-    backdrop-filter: blur(15px);
-
-    overflow-x: auto;
+    backdrop-filter: blur(12px);
 }
 
-nav::-webkit-scrollbar {
-    height: 3px;
+.light-theme .site-header {
+    background: rgba(247,244,237,.96);
 }
 
-nav::-webkit-scrollbar-thumb {
-    background: var(--gold);
-}
-
-nav a {
-    color: var(--cream);
-
-    text-decoration: none;
-
-    padding: 15px 18px;
-
-    font-size: 11px;
-
-    font-weight: 600;
-
-    text-transform: uppercase;
-
-    letter-spacing: 1.3px;
-
-    white-space: nowrap;
-
-    border-bottom: 2px solid transparent;
-
-    transition:
-        color 0.2s ease,
-        background 0.2s ease,
-        border-color 0.2s ease;
-}
-
-nav a:hover {
-    color: var(--gold-light);
-
-    background: rgba(201, 162, 39, 0.07);
-
-    border-bottom-color: var(--gold);
-}
-
-/* =========================================================
-   SECTIONS
-   ========================================================= */
-
-section {
-    width: min(1250px, 94%);
-
-    margin: 0 auto;
-
-    padding: 65px 0;
-
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-section h2 {
-    font-family:
-        "Playfair Display",
-        Georgia,
-        serif;
-
-    color: var(--gold-light);
-
-    font-size: clamp(27px, 4vw, 40px);
-
-    font-weight: 600;
-
-    margin-bottom: 30px;
-
-    position: relative;
-}
-
-section h2::after {
-    content: "";
-
-    display: block;
-
-    width: 45px;
-
-    height: 2px;
-
-    background: var(--gold);
-
-    margin-top: 12px;
-}
-
-section h3 {
-    color: var(--white);
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    text-transform: uppercase;
-
-    letter-spacing: 1.5px;
-
-    margin: 28px 0 14px;
-
-    padding-left: 12px;
-
-    border-left: 2px solid var(--gold);
-}
-
-/* =========================================================
-   CARDS
-   ========================================================= */
-
-.card {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,0.035),
-            rgba(255,255,255,0.015)
-        );
-
-    border: 1px solid var(--border);
-
-    padding: 24px;
-
-    margin-bottom: 14px;
-
-    border-radius: var(--radius);
-
-    box-shadow: var(--shadow);
-
-    transition:
-        transform 0.25s ease,
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.card:hover {
-    transform: translateY(-3px);
-
-    border-color: rgba(229, 199, 102, 0.65);
-
-    box-shadow:
-        var(--shadow),
-        var(--gold-shadow);
-}
-
-.card h3 {
-    margin-top: 0;
-
-    padding-left: 0;
-
-    border-left: none;
-
-    color: var(--gold-light);
-
-    font-family:
-        "Playfair Display",
-        Georgia,
-        serif;
-
-    text-transform: none;
-
-    letter-spacing: 0;
-
-    font-size: 21px;
-}
-
-.card p {
-    color: var(--muted);
-
-    margin-top: 10px;
-}
-
-/* =========================================================
-   LISTS
-   ========================================================= */
-
-ul {
-    list-style: none;
-
-    margin-top: 15px;
-}
-
-li {
-    position: relative;
-
-    color: var(--muted);
-
-    padding: 9px 0 9px 25px;
-
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-li::before {
-    content: "◆";
-
-    position: absolute;
-
-    left: 0;
-
-    color: var(--gold);
-
-    font-size: 8px;
-
-    top: 13px;
-}
-
-/* =========================================================
-   CATALOG CONTAINERS
-   ========================================================= */
-
-#availableContainers,
-#preorderContainers,
-#skincare,
-#soap,
-#lip,
-#other,
-#bundleCatalog,
-#paymentInformation {
-    width: 100%;
-}
-
-/* Automatically creates compact responsive layouts
-   for elements generated by catalog.js */
-
-.catalog-grid,
-#availableContainers,
-#preorderContainers,
-#skincare,
-#soap,
-#lip,
-#other,
-#bundleCatalog {
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fill, minmax(190px, 1fr));
-
-    gap: 14px;
-
-    margin-bottom: 28px;
-}
-
-/* =========================================================
-   GENERATED PRODUCT / CONTAINER CARDS
-   ========================================================= */
-
-.catalog-grid > *,
-#availableContainers > *,
-#preorderContainers > *,
-#skincare > *,
-#soap > *,
-#lip > *,
-#other > *,
-#bundleCatalog > * {
-    background:
-        linear-gradient(
-            150deg,
-            #171717,
-            #0e0e0e
-        );
-
-    border: 1px solid rgba(201, 162, 39, 0.25);
-
-    border-radius: var(--radius);
-
-    padding: 15px;
-
-    min-width: 0;
-
-    box-shadow:
-        0 10px 30px rgba(0,0,0,0.35);
-
-    transition:
-        transform 0.25s ease,
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.catalog-grid > *:hover,
-#availableContainers > *:hover,
-#preorderContainers > *:hover,
-#skincare > *:hover,
-#soap > *:hover,
-#lip > *:hover,
-#other > *:hover,
-#bundleCatalog > *:hover {
-    transform: translateY(-5px);
-
-    border-color: var(--gold);
-
-    box-shadow:
-        0 15px 40px rgba(0,0,0,0.55),
-        0 0 20px rgba(201,162,39,0.08);
-}
-
-/* =========================================================
-   GENERATED IMAGES
-   ========================================================= */
-
-.catalog-grid img,
-#availableContainers img,
-#preorderContainers img,
-#skincare img,
-#soap img,
-#lip img,
-#other img,
-#bundleCatalog img {
-    width: 100%;
-
-    height: 210px;
-
-    object-fit: contain;
-
-    display: block;
-
-    background: #0a0a0a;
-
-    border-bottom: 1px solid rgba(201,162,39,0.18);
-
-    margin-bottom: 12px;
-}
-
-/* =========================================================
-   GENERATED CARD TEXT
-   ========================================================= */
-
-.catalog-grid h3,
-#availableContainers h3,
-#preorderContainers h3,
-#skincare h3,
-#soap h3,
-#lip h3,
-#other h3,
-#bundleCatalog h3 {
-    color: var(--gold-light);
-
-    font-family:
-        "Playfair Display",
-        Georgia,
-        serif;
-
-    font-size: 18px;
-
-    margin: 5px 0 7px;
-
-    border: none;
-
-    padding: 0;
-
-    text-transform: none;
-
-    letter-spacing: 0;
-}
-
-.catalog-grid p,
-#availableContainers p,
-#preorderContainers p,
-#skincare p,
-#soap p,
-#lip p,
-#other p,
-#bundleCatalog p {
-    color: var(--muted);
-
-    font-size: 12px;
-
-    line-height: 1.55;
-
-    margin: 4px 0;
-}
-
-/* =========================================================
-   GOLD PRICE
-   ========================================================= */
-
-.price,
-.product-price,
-.bundle-price {
-    color: var(--gold-light) !important;
-
-    font-size: 17px !important;
-
+.logo,
+.footer-logo {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 30px;
     font-weight: 700;
-
-    margin-top: 10px !important;
+    letter-spacing: 4px;
+    white-space: nowrap;
 }
 
-/* =========================================================
-   PAYMENT SECTION
-   ========================================================= */
+.logo span,
+.footer-logo span {
+    color: var(--gold);
+}
 
-#payment {
+.main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+.main-nav a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: var(--transition);
+}
+
+.main-nav a:hover {
+    color: var(--gold);
+}
+
+.theme-button,
+.cart-button {
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    padding: 9px 14px;
+    border-radius: 30px;
+    transition: var(--transition);
+}
+
+.theme-button:hover,
+.cart-button:hover {
+    background: var(--gold);
+    color: #000;
+}
+
+.cart-button span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 20px;
+    height: 20px;
+
+    margin-left: 4px;
+
+    border-radius: 50%;
+    background: var(--gold);
+    color: #000;
+
+    font-size: 10px;
+}
+
+
+/* HERO */
+
+.hero-section {
+    min-height: 680px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    padding: 100px 7%;
+
     background:
         radial-gradient(
             circle at center,
-            rgba(201,162,39,0.06),
-            transparent 55%
+            #292318 0%,
+            #080808 65%
         );
 }
 
-.payment-section-intro {
-    max-width: 700px;
-
-    color: var(--muted);
-
-    margin-bottom: 25px;
+.hero-content {
+    max-width: 850px;
 }
 
-.payment-information {
-    display: grid;
+.eyebrow {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 15px;
+}
 
+.hero-content h1 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(55px, 8vw, 100px);
+    line-height: .95;
+    margin-bottom: 30px;
+}
+
+.hero-content h1 span {
+    display: block;
+    color: var(--gold);
+    font-style: italic;
+}
+
+.hero-content p:not(.eyebrow) {
+    max-width: 650px;
+    margin: auto;
+    color: #d0d0d0;
+    font-size: 15px;
+}
+
+.gold-button {
+    display: inline-block;
+    margin-top: 35px;
+
+    padding: 15px 32px;
+
+    border: none;
+    border-radius: 3px;
+
+    background: linear-gradient(
+        135deg,
+        var(--gold-light),
+        var(--gold)
+    );
+
+    color: #080808;
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+
+    transition: var(--transition);
+}
+
+.gold-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(212,175,55,.25);
+}
+
+
+/* SECTIONS */
+
+.catalog-section,
+.about-section {
+    padding: 100px 7%;
+}
+
+.alternate-section {
+    background: var(--black-soft);
+}
+
+.section-heading {
+    text-align: center;
+    margin-bottom: 55px;
+}
+
+.section-heading h2 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 55px;
+    font-weight: 600;
+}
+
+.gold-line {
+    width: 65px;
+    height: 2px;
+    margin: 18px auto 0;
+    background: var(--gold);
+}
+
+.small-heading {
+    margin-top: 80px;
+    margin-bottom: 40px;
+}
+
+.small-heading h2 {
+    font-size: 43px;
+}
+
+
+/* CATALOG */
+
+.catalog-grid {
+    max-width: 1250px;
+    margin: auto;
+
+    display: grid;
     grid-template-columns:
         repeat(auto-fit, minmax(240px, 1fr));
 
-    gap: 14px;
+    gap: 25px;
 }
 
-.payment-info-card {
-    background:
-        linear-gradient(
-            145deg,
-            #171717,
-            #0d0d0d
-        );
+.catalog-card {
+    overflow: hidden;
 
+    background: var(--card);
     border: 1px solid var(--border);
-
-    padding: 22px;
-
     border-radius: var(--radius);
 
-    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
 
+    transition: var(--transition);
+}
+
+.catalog-card:hover {
+    transform: translateY(-7px);
+    border-color: var(--gold);
+    box-shadow: 0 15px 35px rgba(0,0,0,.3);
+}
+
+.catalog-image {
     position: relative;
+    width: 100%;
+    height: 270px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #1c1c1c,
+        #0c0c0c
+    );
 
     overflow: hidden;
 }
 
-.payment-info-card::before {
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 3px;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--gold-dark),
-            var(--gold-light),
-            var(--gold-dark)
-        );
+.light-theme .catalog-image {
+    background: linear-gradient(
+        135deg,
+        #eee,
+        #ddd
+    );
 }
 
-.payment-info-card h3 {
+.catalog-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .4s ease;
+}
+
+.catalog-card:hover .catalog-image img {
+    transform: scale(1.05);
+}
+
+.catalog-placeholder {
+    color: var(--gold);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+}
+
+.catalog-type {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+    background: rgba(0,0,0,.75);
     color: var(--gold-light);
 
-    border: none;
-
-    padding: 0;
-
-    margin: 0 0 12px;
-
-    font-family:
-        "Playfair Display",
-        Georgia,
-        serif;
-
-    font-size: 20px;
-
-    text-transform: none;
+    text-transform: capitalize;
+    font-size: 10px;
 }
 
-.payment-info-card p {
-    color: var(--muted);
+.catalog-content {
+    padding: 23px;
 
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.catalog-category {
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+}
+
+.catalog-content h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 29px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+}
+
+.catalog-description {
+    color: var(--secondary-text);
     font-size: 13px;
+    min-height: 45px;
+    margin-bottom: 18px;
+}
 
+.catalog-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.catalog-price {
+    color: var(--gold);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.stock-info {
+    font-size: 10px;
+    padding: 4px 9px;
+    border-radius: 15px;
+}
+
+.in-stock {
+    color: #9ee6b0;
+    background: rgba(60,180,90,.1);
+}
+
+.out-of-stock {
+    color: #ff9c9c;
+    background: rgba(220,60,60,.1);
+}
+
+.add-cart-button {
+    width: 100%;
+    margin-top: 15px;
+
+    padding: 12px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+
+    transition: var(--transition);
+}
+
+.add-cart-button:hover:not(:disabled) {
+    background: var(--gold);
+    color: #000;
+}
+
+.add-cart-button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+
+/* ABOUT */
+
+.company-info {
+    max-width: 1200px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.info-card {
+    padding: 35px;
+
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    text-align: center;
+    transition: var(--transition);
+}
+
+.info-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-4px);
+}
+
+.info-number {
+    display: block;
+    color: var(--gold);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 25px;
+    margin-bottom: 8px;
+}
+
+.info-card h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 32px;
+    color: var(--gold);
+    margin-bottom: 15px;
+}
+
+.info-card p {
+    color: var(--secondary-text);
+    font-size: 14px;
     white-space: pre-line;
 }
 
-/* =========================================================
-   PAYMENT QR
-   ========================================================= */
 
-.payment-info-card img {
-    max-width: 180px;
+/* SERVICES */
 
+.services-grid {
+    max-width: 1200px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 25px;
+}
+
+.service-card {
+    overflow: hidden;
+
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    transition: var(--transition);
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+}
+
+.service-image {
+    height: 210px;
+    background: #111;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.service-image img {
     width: 100%;
-
-    height: auto;
-
-    display: block;
-
-    margin: 15px auto;
-
-    padding: 8px;
-
-    background: white;
-
-    border-radius: 3px;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* =========================================================
-   BUTTONS / LINKS GENERATED BY JAVASCRIPT
-   ========================================================= */
-
-button,
-.btn {
-    font-family:
-        "DM Sans",
-        Arial,
-        sans-serif;
-
-    cursor: pointer;
+.service-placeholder {
+    color: var(--gold);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 25px;
 }
 
-button {
-    border: 1px solid var(--gold);
+.service-content {
+    padding: 25px;
+}
 
-    background: var(--gold);
-
-    color: var(--black);
-
-    padding: 10px 17px;
-
-    border-radius: 2px;
-
-    font-weight: 700;
-
+.service-number {
+    color: var(--gold);
     font-size: 11px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 1px;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
 }
 
-button:hover {
-    background: var(--gold-light);
-
-    transform: translateY(-2px);
+.service-content h4 {
+    font-family: "Cormorant Garamond", serif;
+    color: var(--gold);
+    font-size: 27px;
+    margin: 5px 0 10px;
 }
 
-/* =========================================================
-   MODALS
-   ========================================================= */
+.service-content p {
+    color: var(--secondary-text);
+    font-size: 13px;
+}
+
+
+/* PAYMENT */
+
+.payment-card {
+    max-width: 1000px;
+    margin: auto;
+
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.payment-row {
+    padding: 25px 30px;
+    border-bottom: 1px solid var(--border);
+}
+
+.payment-row:last-child {
+    border-bottom: none;
+}
+
+.payment-row h3 {
+    color: var(--gold);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 25px;
+    margin-bottom: 7px;
+}
+
+.payment-row p {
+    color: var(--secondary-text);
+    white-space: pre-line;
+}
+
+
+/* CART */
 
 .modal {
     position: fixed;
-
     inset: 0;
-
-    z-index: 9999;
+    z-index: 3000;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
     padding: 20px;
+
+    background: rgba(0,0,0,.75);
 }
 
 .modal.hidden {
     display: none;
 }
 
-.modal-overlay {
-    position: absolute;
-
-    inset: 0;
-
-    background: rgba(0,0,0,0.85);
-
-    backdrop-filter: blur(8px);
-}
-
 .modal-content {
     position: relative;
 
-    z-index: 2;
-
-    width: min(850px, 95vw);
-
-    max-height: 90vh;
-
+    width: min(600px, 100%);
+    max-height: 85vh;
     overflow-y: auto;
 
-    background:
-        linear-gradient(
-            145deg,
-            #181818,
-            #090909
-        );
+    padding: 35px;
 
+    background: var(--card);
     border: 1px solid var(--gold);
+    border-radius: var(--radius);
+}
 
-    padding: 30px;
-
-    border-radius: 4px;
-
-    box-shadow:
-        0 30px 80px rgba(0,0,0,0.8),
-        0 0 30px rgba(201,162,39,0.10);
+.modal-content h2 {
+    font-family: "Cormorant Garamond", serif;
+    color: var(--gold);
+    font-size: 38px;
+    margin-bottom: 25px;
 }
 
 .modal-close {
     position: absolute;
+    top: 12px;
+    right: 15px;
 
-    top: 10px;
-
-    right: 12px;
-
-    width: 36px;
-
-    height: 36px;
-
-    padding: 0;
-
-    border-radius: 50%;
-
+    border: none;
     background: transparent;
+    color: var(--gold);
+    font-size: 28px;
+}
 
-    color: var(--gold-light);
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.cart-item h4 {
+    color: var(--text);
+}
+
+.cart-item p {
+    color: var(--secondary-text);
+    font-size: 12px;
+}
+
+.cart-remove {
+    border: none;
+    background: transparent;
+    color: #d88;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 20px 0;
+    margin-bottom: 15px;
+
+    border-top: 1px solid var(--border);
+}
+
+.cart-total strong {
+    color: var(--gold);
+}
+
+
+/* BUTTON */
+
+.secondary-button {
+    padding: 12px 20px;
 
     border: 1px solid var(--gold);
-    
-    font-size: 22px;
+    background: transparent;
+    color: var(--gold);
 
-    line-height: 1;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-.modal-close:hover {
+.secondary-button:hover {
     background: var(--gold);
-
-    color: var(--black);
+    color: #000;
 }
 
-/* =========================================================
-   LOADING TEXT
-   ========================================================= */
 
-#availableContainers > p,
-#preorderContainers > p,
-#skincare > p,
-#soap > p,
-#lip > p,
-#other > p,
-#bundleCatalog > p,
-#paymentInformation > p {
-    grid-column: 1 / -1;
+/* FOOTER */
 
+.site-footer {
+    padding: 60px 7%;
     text-align: center;
 
-    padding: 35px;
-
-    color: var(--muted);
-
-    border: 1px dashed rgba(201,162,39,0.25);
-
-    background: rgba(255,255,255,0.015);
+    background: #050505;
+    border-top: 1px solid var(--border);
 }
 
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
-::-webkit-scrollbar {
-    width: 8px;
+.light-theme .site-footer {
+    background: #e8e2d5;
 }
 
-::-webkit-scrollbar-track {
-    background: #080808;
+.footer-logo {
+    margin-bottom: 15px;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #5e4b17;
-
-    border-radius: 10px;
+.site-footer p {
+    color: var(--secondary-text);
+    font-size: 13px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--gold);
+.copyright {
+    margin-top: 25px;
+    font-size: 11px !important;
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
 
-@media (max-width: 768px) {
+/* TOAST */
 
-    header {
-        padding: 32px 18px 24px;
+.toast {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    z-index: 4000;
+
+    padding: 15px 22px;
+
+    background: #111;
+    color: var(--gold);
+
+    border: 1px solid var(--gold);
+
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+
+    transition: .3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* LOADING */
+
+.loading,
+.empty-message,
+.error-message,
+.service-empty {
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    color: var(--secondary-text);
+}
+
+.error-message {
+    color: #ff9c9c;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+
+    .site-header {
+        flex-direction: column;
     }
 
-    header h1 {
-        font-size: 38px;
-
-        letter-spacing: 5px;
+    .main-nav {
+        justify-content: center;
     }
 
-    header p {
+    .company-info {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-section,
+    .about-section {
+        padding: 75px 5%;
+    }
+
+}
+
+@media (max-width: 500px) {
+
+    .logo {
+        font-size: 25px;
+    }
+
+    .main-nav {
+        gap: 12px;
+    }
+
+    .main-nav a {
         font-size: 10px;
-
-        letter-spacing: 1.8px;
     }
 
-    nav {
-        justify-content: flex-start;
+    .hero-content h1 {
+        font-size: 60px;
     }
 
-    nav a {
-        padding: 13px 14px;
-
-        font-size: 10px;
+    .section-heading h2 {
+        font-size: 45px;
     }
 
-    section {
-        width: 92%;
-
-        padding: 45px 0;
-    }
-
-    section h2 {
-        font-size: 29px;
-
-        margin-bottom: 22px;
-    }
-
-    section h3 {
-        font-size: 13px;
-    }
-
-    .card {
-        padding: 18px;
-    }
-
-    .catalog-grid,
-    #availableContainers,
-    #preorderContainers,
-    #skincare,
-    #soap,
-    #lip,
-    #other,
-    #bundleCatalog {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 9px;
-    }
-
-    .catalog-grid > *,
-    #availableContainers > *,
-    #preorderContainers > *,
-    #skincare > *,
-    #soap > *,
-    #lip > *,
-    #other > *,
-    #bundleCatalog > * {
-        padding: 10px;
-    }
-
-    .catalog-grid img,
-    #availableContainers img,
-    #preorderContainers img,
-    #skincare img,
-    #soap img,
-    #lip img,
-    #other img,
-    #bundleCatalog img {
-        height: 155px;
-    }
-
-    .catalog-grid h3,
-    #availableContainers h3,
-    #preorderContainers h3,
-    #skincare h3,
-    #soap h3,
-    #lip h3,
-    #other h3,
-    #bundleCatalog h3 {
-        font-size: 15px;
-    }
-
-    .catalog-grid p,
-    #availableContainers p,
-    #preorderContainers p,
-    #skincare p,
-    #soap p,
-    #lip p,
-    #other p,
-    #bundleCatalog p {
-        font-size: 11px;
-    }
-
-    .payment-information {
+    .catalog-grid {
         grid-template-columns: 1fr;
     }
 
     .modal-content {
-        padding: 22px 17px;
-    }
-}
-
-/* =========================================================
-   SMALL PHONES
-   ========================================================= */
-
-@media (max-width: 420px) {
-
-    header h1 {
-        font-size: 31px;
-
-        letter-spacing: 4px;
+        padding: 25px;
     }
 
-    nav a {
-        padding: 12px 11px;
-
-        font-size: 9px;
-    }
-
-    section {
-        width: 94%;
-    }
-
-    .catalog-grid,
-    #availableContainers,
-    #preorderContainers,
-    #skincare,
-    #soap,
-    #lip,
-    #other,
-    #bundleCatalog {
-        grid-template-columns: repeat(2, 1fr);
-
-        gap: 7px;
-    }
-
-    .catalog-grid img,
-    #availableContainers img,
-    #preorderContainers img,
-    #skincare img,
-    #soap img,
-    #lip img,
-    #other img,
-    #bundleCatalog img {
-        height: 130px;
-    }
-
-    .card {
-        padding: 15px;
-    }
 }

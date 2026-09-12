@@ -1,280 +1,255 @@
+<!-- FILE 1: index.html -->
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Glamsanity cosmetics, skincare, beauty products and packaging solutions.">
+    <title>Glamsanity | Beauty & Cosmetics</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Glamsanity Catalog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-<header>
+<header class="site-header">
+    <div class="logo">
+        GLAM<span>SANITY</span>
+    </div>
 
-    <h1>GLAMSANITY</h1>
-
-    <p>
-        Cosmetic & Skincare Product Catalog
-    </p>
-
+    <nav class="main-nav">
+        <a href="#home">Home</a>
+        <a href="#products">Products</a>
+        <a href="#bundles">Bundles</a>
+        <a href="#containers">Containers</a>
+        <a href="#about">About</a>
+        <button id="cartButton" class="cart-button" type="button">
+            Cart <span id="cartCount">0</span>
+        </button>
+        <button id="themeToggle" class="theme-button" type="button">
+            ☾
+        </button>
+    </nav>
 </header>
 
-
-<nav>
-
-    <a href="#about">About</a>
-
-    <a href="#containers">Containers</a>
-
-    <a href="#products">Products</a>
-
-    <a href="#bundles">Bundles</a>
-
-    <a href="#payment">Payment</a>
-
-    <a href="#policies">Policies</a>
-
-</nav>
-
-
-<!-- =========================================================
-     ABOUT
-========================================================= -->
-
-<section id="about">
-
-    <h2>About Glamsanity</h2>
-
-    <div class="card">
-
-        <h3>Company Introduction</h3>
-
-        <p id="companyIntro">
-            Loading company information...
-        </p>
-
-    </div>
-
-
-    <div class="card">
-
-        <h3>Services Offered</h3>
-
-        <ul>
-
-            <li>
-                Private Label Manufacturing
-            </li>
-
-            <li>
-                Rebranding Services
-            </li>
-
-            <li>
-                Product Development
-            </li>
-
-            <li>
-                Packaging Solutions
-            </li>
-
-            <li>
-                FDA Assistance
-            </li>
-
-        </ul>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     CONTAINERS
-========================================================= -->
-
-<section id="containers">
-
-    <h2>Container Catalog</h2>
-
-
-    <h3>On-Hand Containers</h3>
-
-    <div id="availableContainers">
-
-        <p>
-            Loading containers...
-        </p>
-
-    </div>
-
-
-    <h3>Pre-Order Containers</h3>
-
-    <div id="preorderContainers">
-
-        <p>
-            Loading containers...
-        </p>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     PRODUCTS
-========================================================= -->
-
-<section id="products">
-
-    <h2>Product Catalog</h2>
-
-
-    <h3>Skincare</h3>
-
-    <div id="skincare">
-
-        <p>
-            Loading products...
-        </p>
-
-    </div>
-
-
-    <h3>Soaps</h3>
-
-    <div id="soap">
-
-        <p>
-            Loading products...
-        </p>
-
-    </div>
-
-
-    <h3>Lip Products</h3>
-
-    <div id="lip">
-
-        <p>
-            Loading products...
-        </p>
-
-    </div>
-
-
-    <h3>Other Cosmetics</h3>
-
-    <div id="other">
-
-        <p>
-            Loading products...
-        </p>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     BUNDLES
-========================================================= -->
-
-<section id="bundles">
-
-    <h2>Negosyo Bundles</h2>
-
-    <div id="bundleCatalog">
-
-        <p>
-            Loading bundles...
-        </p>
-
-    </div>
-
-</section>
-
-
-
-<section id="payment">
-
-    <h2>
-        Payment Information
-    </h2>
-
-    <p class="payment-section-intro">
-
-        Please review the payment requirements,
-        procedures, and reminders before making
-        a payment.
-
-    </p>
-
-
-    <div
-        id="paymentInformation"
-        class="payment-information"
-    >
-
-        <div class="payment-info-card">
+<main>
+
+    <section id="home" class="hero-section">
+        <div class="hero-content">
+            <p class="eyebrow">BEAUTY • QUALITY • ELEGANCE</p>
+
+            <h1>
+                Elevate Your
+                <span>Beauty</span>
+            </h1>
 
             <p>
-                Payment information will be
-                displayed here.
+                Discover premium beauty products, innovative packaging,
+                and professional cosmetic solutions from Glamsanity.
             </p>
+
+            <a href="#products" class="gold-button">
+                Explore Products
+            </a>
+        </div>
+    </section>
+
+
+    <section id="products" class="catalog-section">
+        <div class="section-heading">
+            <p class="eyebrow">OUR COLLECTION</p>
+            <h2>Products</h2>
+            <div class="gold-line"></div>
+        </div>
+
+        <div id="productsGrid" class="catalog-grid">
+            <div class="loading">Loading products...</div>
+        </div>
+    </section>
+
+
+    <section id="bundles" class="catalog-section alternate-section">
+        <div class="section-heading">
+            <p class="eyebrow">CURATED FOR YOU</p>
+            <h2>Bundles</h2>
+            <div class="gold-line"></div>
+        </div>
+
+        <div id="bundlesGrid" class="catalog-grid">
+            <div class="loading">Loading bundles...</div>
+        </div>
+    </section>
+
+
+    <section id="containers" class="catalog-section">
+        <div class="section-heading">
+            <p class="eyebrow">PACKAGING SOLUTIONS</p>
+            <h2>Containers</h2>
+            <div class="gold-line"></div>
+        </div>
+
+        <div id="containersGrid" class="catalog-grid">
+            <div class="loading">Loading containers...</div>
+        </div>
+    </section>
+
+
+    <section id="about" class="about-section">
+
+        <div class="section-heading">
+            <p class="eyebrow">GET TO KNOW US</p>
+            <h2>About Glamsanity</h2>
+            <div class="gold-line"></div>
+        </div>
+
+        <div class="company-info">
+
+            <div class="info-card">
+                <span class="info-number">01</span>
+                <h3>Introduction</h3>
+                <p id="companyIntro">
+                    Welcome to Glamsanity.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <span class="info-number">02</span>
+                <h3>Our Mission</h3>
+                <p id="companyMission">
+                    Our mission information will be available soon.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <span class="info-number">03</span>
+                <h3>Our Vision</h3>
+                <p id="companyVision">
+                    Our vision information will be available soon.
+                </p>
+            </div>
 
         </div>
 
+
+        <div class="services-wrapper">
+
+            <div class="section-heading small-heading">
+                <p class="eyebrow">WHAT WE OFFER</p>
+                <h2>Services Offered</h2>
+                <div class="gold-line"></div>
+            </div>
+
+            <div id="servicesOfferedGrid" class="services-grid">
+                <div class="loading">Loading services...</div>
+            </div>
+
+        </div>
+
+
+        <div class="payment-section">
+
+            <div class="section-heading small-heading">
+                <p class="eyebrow">ORDER INFORMATION</p>
+                <h2>Payment Information</h2>
+                <div class="gold-line"></div>
+            </div>
+
+            <div class="payment-card">
+
+                <div class="payment-row">
+                    <h3>Accepted Payment Methods</h3>
+                    <p id="paymentMethods">
+                        Payment information will be available soon.
+                    </p>
+                </div>
+
+                <div class="payment-row">
+                    <h3>Payment Instructions</h3>
+                    <p id="paymentInstructions"></p>
+                </div>
+
+                <div class="payment-row">
+                    <h3>Required Down Payment</h3>
+                    <p id="paymentDownPayment"></p>
+                </div>
+
+                <div class="payment-row">
+                    <h3>Balance / Payment Schedule</h3>
+                    <p id="paymentSchedule"></p>
+                </div>
+
+                <div class="payment-row">
+                    <h3>Payment Confirmation</h3>
+                    <p id="paymentConfirmation"></p>
+                </div>
+
+                <div class="payment-row">
+                    <h3>Important Reminders</h3>
+                    <p id="paymentReminders"></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="footer-logo">
+        GLAM<span>SANITY</span>
     </div>
 
-</section>
+    <p>
+        Beauty, cosmetics, packaging, and product solutions.
+    </p>
+
+    <p class="copyright">
+        © <span id="currentYear"></span> Glamsanity. All rights reserved.
+    </p>
+
+</footer>
 
 
+<div id="cartModal" class="modal hidden">
 
-<!-- =========================================================
-     POLICIES
-========================================================= -->
+    <div class="modal-content">
 
-<section id="policies">
+        <button id="closeCart" class="modal-close" type="button">
+            ×
+        </button>
 
-    <h2>Rules & Policies</h2>
+        <h2>Your Cart</h2>
 
-    <div class="card">
+        <div id="cartItems"></div>
 
-        <p>
-            Please contact Glamsanity for complete
-            ordering terms, minimum order quantities,
-            production timelines, shipping arrangements,
-            and payment confirmation procedures.
-        </p>
+        <div class="cart-total">
+            <span>Total</span>
+            <strong id="cartTotal">₱0.00</strong>
+        </div>
+
+        <button id="clearCart" class="secondary-button" type="button">
+            Clear Cart
+        </button>
 
     </div>
 
-</section>
+</div>
 
 
+<div id="toast" class="toast"></div>
 
-<!-- =========================================================
-     SUPABASE
-========================================================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="sql-config.js"></script>
-
 <script src="catalog.js"></script>
 
 </body>
-
 </html>
